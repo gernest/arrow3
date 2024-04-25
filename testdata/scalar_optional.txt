@@ -1,0 +1,17 @@
+schema:
+  fields: 15
+    - double: type=float64, nullable
+    - float: type=float32, nullable
+    - int32: type=int32, nullable
+    - int64: type=int64, nullable
+    - uint32: type=uint32, nullable
+    - uint64: type=uint64, nullable
+    - sint32: type=int32, nullable
+    - sint64: type=int64, nullable
+    - fixed32: type=uint32, nullable
+    - fixed64: type=uint64, nullable
+    - sfixed32: type=int32, nullable
+    - sfixed64: type=int64, nullable
+    - bool: type=bool, nullable
+    - string: type=utf8, nullable
+    - bytes: type=binary, nullable

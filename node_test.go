@@ -7,12 +7,17 @@ import (
 	"github.com/gernest/arrow3/gen/go/samples"
 )
 
-func TestMessage_scala(t *testing.T) {
+func TestMessage_scalar(t *testing.T) {
 	m := &samples.ScalarTypes{}
 	msg := build(m.ProtoReflect())
 	schema := msg.schema.String()
-	os.WriteFile("testdata/scalar.txt", []byte(schema), 0600)
 	match(t, "testdata/scalar.txt", schema)
+}
+func TestMessage_scalarOptional(t *testing.T) {
+	m := &samples.ScalarTypesOptional{}
+	msg := build(m.ProtoReflect())
+	schema := msg.schema.String()
+	match(t, "testdata/scalar_optional.txt", schema, struct{}{})
 }
 
 func match(t testing.TB, path string, value string, write ...struct{}) {
