@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 message ScalarTypes {
-  double doube = 1;
+  double double = 1;
   float float = 2;
   int32 int32 = 3;
   int64 int64 = 4;
