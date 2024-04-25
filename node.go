@@ -69,7 +69,6 @@ func createNode(parent *node, field protoreflect.FieldDescriptor) *node {
 }
 
 func baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
-	fmt.Println("===== here 1", field.Name())
 	switch field.Kind() {
 	case protoreflect.BoolKind:
 		t = arrow.FixedWidthTypes.Boolean
