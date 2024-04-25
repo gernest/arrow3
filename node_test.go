@@ -5,6 +5,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/apache/arrow/go/v17/arrow/memory"
 	"github.com/gernest/arrow3/gen/go/samples"
 )
 
@@ -51,6 +52,22 @@ func TestMessage_Cyclic(t *testing.T) {
 	if !errors.Is(err, ErrMxDepth) {
 		t.Errorf("expected %v got %v", ErrMxDepth, err)
 	}
+}
+
+func TestAppendMessage_scalar(t *testing.T) {
+	msg := &samples.ScalarTypes{}
+	b := build(msg.ProtoReflect())
+	b.build(memory.DefaultAllocator)
+	b.append(msg.ProtoReflect())
+	msg.Uint64 = 1
+	b.append(msg.ProtoReflect())
+
+	r := b.NewRecord()
+	data, err := r.MarshalJSON()
+	if err != nil {
+		t.Fatal(err)
+	}
+	match(t, "testdata/scalar.json", string(data), struct{}{})
 }
 
 func match(t testing.TB, path string, value string, write ...struct{}) {
