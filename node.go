@@ -8,6 +8,8 @@ import (
 	"github.com/apache/arrow/go/v17/arrow/array"
 	"github.com/apache/arrow/go/v17/arrow/memory"
 	"google.golang.org/protobuf/reflect/protoreflect"
+	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -78,6 +80,60 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 	}
 	// Try a message
 	if msg := field.Message(); msg != nil {
+		if isDuration(msg) {
+			n.field.Type = arrow.FixedWidthTypes.Duration_ms
+			n.field.Nullable = true
+			n.setup = func(b array.Builder) valueFn {
+				a := b.(*array.DurationBuilder)
+				return func(v protoreflect.Value) error {
+					if !v.IsValid() {
+						a.AppendNull()
+						return nil
+					}
+					e := v.Interface().(*durationpb.Duration)
+					a.Append(arrow.Duration(e.AsDuration().Milliseconds()))
+					return nil
+				}
+			}
+		}
+		if isTs(msg) {
+			n.field.Type = arrow.FixedWidthTypes.Timestamp_ms
+			n.field.Nullable = true
+			n.setup = func(b array.Builder) valueFn {
+				a := b.(*array.TimestampBuilder)
+				return func(v protoreflect.Value) error {
+					if !v.IsValid() {
+						a.AppendNull()
+						return nil
+					}
+					e := v.Interface().(*timestamppb.Timestamp)
+					a.Append(arrow.Timestamp(e.AsTime().UTC().UnixMilli()))
+					return nil
+				}
+			}
+		}
+		if n.field.Type != nil {
+			setup := n.setup
+			n.setup = func(b array.Builder) valueFn {
+				ls := b.(*array.ListBuilder)
+				value := setup(ls.ValueBuilder())
+				return func(v protoreflect.Value) error {
+					if !v.IsValid() {
+						ls.AppendNull()
+						return nil
+					}
+					list := v.List()
+					for i := 0; i < list.Len(); i++ {
+						err := value(list.Get(i))
+						if err != nil {
+							return err
+						}
+					}
+					return nil
+				}
+			}
+			return n
+		}
 		f := msg.Fields()
 		n.children = make([]*node, f.Len())
 		a := make([]arrow.Field, f.Len())
@@ -295,6 +351,19 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 		t = arrow.MapOf(key, value)
 	}
 	return
+}
+
+var (
+	ts       = &timestamppb.Timestamp{}
+	duration = &durationpb.Duration{}
+)
+
+func isTs(msg protoreflect.MessageDescriptor) bool {
+	return ts.ProtoReflect().Descriptor() == msg
+}
+
+func isDuration(msg protoreflect.MessageDescriptor) bool {
+	return duration.ProtoReflect().Descriptor() == msg
 }
 
 func nullable(f protoreflect.FieldDescriptor) bool {

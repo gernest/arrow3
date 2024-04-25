@@ -135,6 +135,13 @@ func TestAppendMessage_nested(t *testing.T) {
 	match(t, "testdata/scalar_nested.json", string(data))
 }
 
+func TestMessage_known(t *testing.T) {
+	m := &samples.Known{}
+	msg := build(m.ProtoReflect())
+	schema := msg.schema.String()
+	match(t, "testdata/scalar_known.txt", schema, struct{}{})
+}
+
 func match(t testing.TB, path string, value string, write ...struct{}) {
 	t.Helper()
 	if len(write) > 0 {

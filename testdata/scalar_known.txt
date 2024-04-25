@@ -1,0 +1,6 @@
+schema:
+  fields: 4
+    - ts: type=timestamp[ms, tz=UTC], nullable
+    - duration: type=timestamp[ms, tz=UTC], nullable
+    - ts_rep: type=timestamp[ms, tz=UTC], nullable
+    - duration_rep: type=timestamp[ms, tz=UTC], nullable
