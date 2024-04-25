@@ -78,7 +78,7 @@ message Cyclic {
 
 message Known {
   google.protobuf.Timestamp ts = 1;
-  google.protobuf.Timestamp duration = 2;
+  google.protobuf.Duration duration = 2;
   repeated google.protobuf.Timestamp ts_rep = 3;
-  repeated google.protobuf.Timestamp duration_rep = 4;
+  repeated google.protobuf.Duration duration_rep = 4;
 }

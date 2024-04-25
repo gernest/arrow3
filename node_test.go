@@ -4,9 +4,12 @@ import (
 	"errors"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/apache/arrow/go/v17/arrow/memory"
 	"github.com/gernest/arrow3/gen/go/samples"
+	"google.golang.org/protobuf/types/known/durationpb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func TestMessage_scalar(t *testing.T) {
@@ -139,7 +142,29 @@ func TestMessage_known(t *testing.T) {
 	m := &samples.Known{}
 	msg := build(m.ProtoReflect())
 	schema := msg.schema.String()
-	match(t, "testdata/scalar_known.txt", schema, struct{}{})
+	match(t, "testdata/scalar_known.txt", schema)
+}
+
+func TestAppendMessage_scalar_known(t *testing.T) {
+	msg := &samples.Known{}
+	b := build(msg.ProtoReflect())
+	b.build(memory.DefaultAllocator)
+	b.append(msg.ProtoReflect())
+	x, _ := time.Parse(time.RFC822, time.RFC822)
+	now := timestamppb.New(x)
+	dur := durationpb.New(time.Minute)
+	msg.Ts = now
+	msg.Duration = dur
+	msg.TsRep = []*timestamppb.Timestamp{now}
+	msg.DurationRep = []*durationpb.Duration{dur}
+	b.append(msg.ProtoReflect())
+
+	r := b.NewRecord()
+	data, err := r.MarshalJSON()
+	if err != nil {
+		t.Fatal(err)
+	}
+	match(t, "testdata/scalar_known.json", string(data))
 }
 
 func match(t testing.TB, path string, value string, write ...struct{}) {

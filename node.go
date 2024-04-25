@@ -90,7 +90,7 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 						a.AppendNull()
 						return nil
 					}
-					e := v.Interface().(*durationpb.Duration)
+					e := v.Message().Interface().(*durationpb.Duration)
 					a.Append(arrow.Duration(e.AsDuration().Milliseconds()))
 					return nil
 				}
@@ -106,30 +106,34 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 						a.AppendNull()
 						return nil
 					}
-					e := v.Interface().(*timestamppb.Timestamp)
+					e := v.Message().Interface().(*timestamppb.Timestamp)
 					a.Append(arrow.Timestamp(e.AsTime().UTC().UnixMilli()))
 					return nil
 				}
 			}
 		}
 		if n.field.Type != nil {
-			setup := n.setup
-			n.setup = func(b array.Builder) valueFn {
-				ls := b.(*array.ListBuilder)
-				value := setup(ls.ValueBuilder())
-				return func(v protoreflect.Value) error {
-					if !v.IsValid() {
-						ls.AppendNull()
+			if field.IsList() {
+				n.field.Type = arrow.ListOf(n.field.Type)
+				setup := n.setup
+				n.setup = func(b array.Builder) valueFn {
+					ls := b.(*array.ListBuilder)
+					value := setup(ls.ValueBuilder())
+					return func(v protoreflect.Value) error {
+						if !v.IsValid() {
+							ls.AppendNull()
+							return nil
+						}
+						ls.Append(true)
+						list := v.List()
+						for i := 0; i < list.Len(); i++ {
+							err := value(list.Get(i))
+							if err != nil {
+								return err
+							}
+						}
 						return nil
 					}
-					list := v.List()
-					for i := 0; i < list.Len(); i++ {
-						err := value(list.Get(i))
-						if err != nil {
-							return err
-						}
-					}
-					return nil
 				}
 			}
 			return n
