@@ -55,3 +55,15 @@ message ScalarTypesRepeated {
 }
 
 message ScalarTypesMap { map<string, string> labels = 1; }
+
+message Nested {
+  ScalarTypes nested_scalar = 1;
+  repeated ScalarTypes nested_repeated_scalar = 2;
+  One deep = 3;
+}
+
+message One { Two two = 1; }
+
+message Two { Three three = 1; }
+
+message Three { uint64 value = 1; }

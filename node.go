@@ -37,19 +37,39 @@ type message struct {
 }
 
 func createNode(parent *node, field protoreflect.FieldDescriptor) *node {
-	field.Index()
+	fmt.Println("===== here 0", field.Name())
+
 	n := &node{parent: parent, desc: field, field: arrow.Field{
 		Name:     string(field.Name()),
 		Nullable: nullable(field),
 		Type:     baseType(field),
 	}}
+
 	if n.field.Type != nil {
 		return n
 	}
-	panic("Only base types are supported")
+	// Try a message
+	if msg := field.Message(); msg != nil {
+		f := msg.Fields()
+		n.children = make([]*node, f.Len())
+		a := make([]arrow.Field, f.Len())
+		for i := 0; i < f.Len(); i++ {
+			n.children[i] = createNode(n, f.Get(i))
+			a[i] = n.children[i].field
+		}
+		n.field.Type = arrow.StructOf(a...)
+		n.field.Nullable = true
+		if field.IsList() {
+			n.field.Type = arrow.ListOf(n.field.Type)
+		}
+		return n
+	}
+
+	panic(fmt.Sprintf("%v is not supported ", field.Name()))
 }
 
 func baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
+	fmt.Println("===== here 1", field.Name())
 	switch field.Kind() {
 	case protoreflect.BoolKind:
 		t = arrow.FixedWidthTypes.Boolean
@@ -71,7 +91,9 @@ func baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 		t = arrow.BinaryTypes.Binary
 	}
 	if field.IsList() {
-		t = arrow.ListOf(t)
+		if t != nil {
+			t = arrow.ListOf(t)
+		}
 		return
 	}
 	if field.IsMap() {
