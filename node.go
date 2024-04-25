@@ -42,6 +42,9 @@ func createNode(parent *node, field protoreflect.FieldDescriptor) *node {
 		Type:     baseType(field),
 	}}
 	if n.field.Type != nil {
+		if field.Cardinality() == protoreflect.Repeated {
+			n.field.Type = arrow.ListOf(n.field.Type)
+		}
 		return n
 	}
 	panic("Only base types are supported")
@@ -73,7 +76,7 @@ func baseType(field protoreflect.FieldDescriptor) arrow.DataType {
 }
 
 func nullable(f protoreflect.FieldDescriptor) bool {
-	if f.HasOptionalKeyword() || f.Cardinality() == protoreflect.Repeated || f.IsMap() {
+	if f.HasOptionalKeyword() {
 		return true
 	}
 	switch f.Kind() {

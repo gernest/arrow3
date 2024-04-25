@@ -1,0 +1,17 @@
+schema:
+  fields: 15
+    - double: type=list<item: float64, nullable>
+    - float: type=list<item: float32, nullable>
+    - int32: type=list<item: int32, nullable>
+    - int64: type=list<item: int64, nullable>
+    - uint32: type=list<item: uint32, nullable>
+    - uint64: type=list<item: uint64, nullable>
+    - sint32: type=list<item: int32, nullable>
+    - sint64: type=list<item: int64, nullable>
+    - fixed32: type=list<item: uint32, nullable>
+    - fixed64: type=list<item: uint64, nullable>
+    - sfixed32: type=list<item: int32, nullable>
+    - sfixed64: type=list<item: int64, nullable>
+    - bool: type=list<item: bool, nullable>
+    - string: type=list<item: utf8, nullable>
+    - bytes: type=list<item: binary, nullable>, nullable
