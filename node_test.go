@@ -103,6 +103,22 @@ func TestAppendMessage_scalar_repeated(t *testing.T) {
 	}
 	match(t, "testdata/scalar_repeated.json", string(data))
 }
+func TestAppendMessage_scalar_map(t *testing.T) {
+	msg := &samples.ScalarTypesMap{}
+	b := build(msg.ProtoReflect())
+	b.build(memory.DefaultAllocator)
+	b.append(msg.ProtoReflect())
+	msg.Labels = map[string]string{
+		"key": "value",
+	}
+	b.append(msg.ProtoReflect())
+	r := b.NewRecord()
+	data, err := r.MarshalJSON()
+	if err != nil {
+		t.Fatal(err)
+	}
+	match(t, "testdata/scalar_map.json", string(data))
+}
 
 func match(t testing.TB, path string, value string, write ...struct{}) {
 	t.Helper()
