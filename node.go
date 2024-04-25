@@ -227,6 +227,10 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 		n.setup = func(b array.Builder) valueFn {
 			a := b.(*array.BinaryBuilder)
 			return func(v protoreflect.Value) error {
+				if !v.IsValid() {
+					a.AppendNull()
+					return nil
+				}
 				a.Append(v.Bytes())
 				return nil
 			}
