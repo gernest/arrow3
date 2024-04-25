@@ -119,6 +119,21 @@ func TestAppendMessage_scalar_map(t *testing.T) {
 	}
 	match(t, "testdata/scalar_map.json", string(data))
 }
+func TestAppendMessage_nested(t *testing.T) {
+	msg := &samples.Nested{
+		NestedRepeatedScalar: []*samples.ScalarTypes{{}},
+		Deep:                 &samples.One{Two: &samples.Two{Three: &samples.Three{Value: 12}}},
+	}
+	b := build(msg.ProtoReflect())
+	b.build(memory.DefaultAllocator)
+	b.append(msg.ProtoReflect())
+	r := b.NewRecord()
+	data, err := r.MarshalJSON()
+	if err != nil {
+		t.Fatal(err)
+	}
+	match(t, "testdata/scalar_nested.json", string(data))
+}
 
 func match(t testing.TB, path string, value string, write ...struct{}) {
 	t.Helper()

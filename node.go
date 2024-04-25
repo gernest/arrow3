@@ -98,6 +98,7 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 					a.AppendNull()
 					return nil
 				}
+				a.Append(true)
 				msg := v.Message()
 				fields := msg.Descriptor().Fields()
 				for i := 0; i < fields.Len(); i++ {
@@ -120,9 +121,10 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 						ls.AppendNull()
 						return nil
 					}
+					ls.Append(true)
 					list := v.List()
 					for i := 0; i < list.Len(); i++ {
-						err := value(v)
+						err := value(list.Get(i))
 						if err != nil {
 							return err
 						}
