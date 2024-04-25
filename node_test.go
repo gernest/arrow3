@@ -35,7 +35,7 @@ func TestMessage_Nested00(t *testing.T) {
 	m := &samples.Nested{}
 	msg := build(m.ProtoReflect())
 	schema := msg.schema.String()
-	match(t, "testdata/nested00.txt", schema, struct{}{})
+	match(t, "testdata/nested00.txt", schema)
 }
 
 func match(t testing.TB, path string, value string, write ...struct{}) {
