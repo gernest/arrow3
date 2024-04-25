@@ -86,6 +86,23 @@ func TestAppendMessage_scalar_optional(t *testing.T) {
 	}
 	match(t, "testdata/scalar_optional.json", string(data))
 }
+func TestAppendMessage_scalar_repeated(t *testing.T) {
+	msg := &samples.ScalarTypesRepeated{}
+	b := build(msg.ProtoReflect())
+	b.build(memory.DefaultAllocator)
+	b.append(msg.ProtoReflect())
+	u := uint64(1)
+	x := []byte("hello")
+	msg.Uint64 = []uint64{u, u}
+	msg.Bytes = [][]byte{x, x}
+	b.append(msg.ProtoReflect())
+	r := b.NewRecord()
+	data, err := r.MarshalJSON()
+	if err != nil {
+		t.Fatal(err)
+	}
+	match(t, "testdata/scalar_repeated.json", string(data))
+}
 
 func match(t testing.TB, path string, value string, write ...struct{}) {
 	t.Helper()
