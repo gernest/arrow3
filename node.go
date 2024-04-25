@@ -1,6 +1,8 @@
 package arrow3
 
 import (
+	"fmt"
+
 	"github.com/apache/arrow/go/v17/arrow"
 	"github.com/apache/arrow/go/v17/arrow/array"
 	"google.golang.org/protobuf/reflect/protoreflect"
@@ -42,47 +44,48 @@ func createNode(parent *node, field protoreflect.FieldDescriptor) *node {
 		Type:     baseType(field),
 	}}
 	if n.field.Type != nil {
-		if field.Cardinality() == protoreflect.Repeated {
-			n.field.Type = arrow.ListOf(n.field.Type)
-		}
 		return n
 	}
 	panic("Only base types are supported")
 }
 
-func baseType(field protoreflect.FieldDescriptor) arrow.DataType {
+func baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 	switch field.Kind() {
 	case protoreflect.BoolKind:
-		return arrow.FixedWidthTypes.Boolean
+		t = arrow.FixedWidthTypes.Boolean
 	case protoreflect.Int32Kind, protoreflect.Sint32Kind, protoreflect.Sfixed32Kind:
-		return arrow.PrimitiveTypes.Int32
+		t = arrow.PrimitiveTypes.Int32
 	case protoreflect.Uint32Kind, protoreflect.Fixed32Kind:
-		return arrow.PrimitiveTypes.Uint32
+		t = arrow.PrimitiveTypes.Uint32
 	case protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Sfixed64Kind:
-		return arrow.PrimitiveTypes.Int64
+		t = arrow.PrimitiveTypes.Int64
 	case protoreflect.Uint64Kind, protoreflect.Fixed64Kind:
-		return arrow.PrimitiveTypes.Uint64
+		t = arrow.PrimitiveTypes.Uint64
 	case protoreflect.DoubleKind:
-		return arrow.PrimitiveTypes.Float64
+		t = arrow.PrimitiveTypes.Float64
 	case protoreflect.FloatKind:
-		return arrow.PrimitiveTypes.Float32
+		t = arrow.PrimitiveTypes.Float32
 	case protoreflect.StringKind:
-		return arrow.BinaryTypes.String
+		t = arrow.BinaryTypes.String
 	case protoreflect.BytesKind:
-		return arrow.BinaryTypes.Binary
-	default:
-		return nil
+		t = arrow.BinaryTypes.Binary
 	}
+	if field.IsList() {
+		t = arrow.ListOf(t)
+		return
+	}
+	if field.IsMap() {
+		key := baseType(field.MapKey())
+		value := baseType(field.MapValue())
+		if value == nil {
+			panic(fmt.Sprintf("%v is not supported as map value", field.MapValue().Kind()))
+		}
+		t = arrow.MapOf(key, value)
+	}
+	return
 }
 
 func nullable(f protoreflect.FieldDescriptor) bool {
-	if f.HasOptionalKeyword() {
-		return true
-	}
-	switch f.Kind() {
-	case protoreflect.BytesKind, protoreflect.MessageKind, protoreflect.GroupKind:
-		return true
-	default:
-		return false
-	}
+	return f.HasOptionalKeyword() ||
+		f.Kind() == protoreflect.BytesKind
 }

@@ -53,3 +53,5 @@ message ScalarTypesRepeated {
   repeated string string = 14;
   repeated bytes bytes = 15;
 }
+
+message ScalarTypesMap { map<string, string> labels = 1; }

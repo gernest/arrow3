@@ -23,7 +23,13 @@ func TestMessage_scalarRepeated(t *testing.T) {
 	m := &samples.ScalarTypesRepeated{}
 	msg := build(m.ProtoReflect())
 	schema := msg.schema.String()
-	match(t, "testdata/scalar_repeated.txt", schema, struct{}{})
+	match(t, "testdata/scalar_repeated.txt", schema)
+}
+func TestMessage_scalarMap(t *testing.T) {
+	m := &samples.ScalarTypesMap{}
+	msg := build(m.ProtoReflect())
+	schema := msg.schema.String()
+	match(t, "testdata/scalar_map.txt", schema)
 }
 
 func match(t testing.TB, path string, value string, write ...struct{}) {
