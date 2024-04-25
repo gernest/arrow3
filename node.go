@@ -1,12 +1,19 @@
 package arrow3
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/apache/arrow/go/v17/arrow"
 	"github.com/apache/arrow/go/v17/arrow/array"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
+
+const (
+	maxDepth = 5
+)
+
+var ErrMxDepth = errors.New("max depth reached, either the message is deeply nested or a circular dependency was introduced")
 
 type node struct {
 	parent   *node
@@ -22,7 +29,7 @@ func build(msg protoreflect.Message) *message {
 	root.children = make([]*node, fields.Len())
 	a := make([]arrow.Field, fields.Len())
 	for i := 0; i < fields.Len(); i++ {
-		root.children[i] = createNode(root, fields.Get(i))
+		root.children[i] = createNode(root, fields.Get(i), 0)
 		a[i] = root.children[i].field
 	}
 	return &message{
@@ -36,9 +43,10 @@ type message struct {
 	schema *arrow.Schema
 }
 
-func createNode(parent *node, field protoreflect.FieldDescriptor) *node {
-	fmt.Println("===== here 0", field.Name())
-
+func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *node {
+	if depth >= maxDepth {
+		panic(ErrMxDepth)
+	}
 	n := &node{parent: parent, desc: field, field: arrow.Field{
 		Name:     string(field.Name()),
 		Nullable: nullable(field),
@@ -54,7 +62,7 @@ func createNode(parent *node, field protoreflect.FieldDescriptor) *node {
 		n.children = make([]*node, f.Len())
 		a := make([]arrow.Field, f.Len())
 		for i := 0; i < f.Len(); i++ {
-			n.children[i] = createNode(n, f.Get(i))
+			n.children[i] = createNode(n, f.Get(i), depth+1)
 			a[i] = n.children[i].field
 		}
 		n.field.Type = arrow.StructOf(a...)

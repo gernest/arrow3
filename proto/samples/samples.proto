@@ -67,3 +67,8 @@ message One { Two two = 1; }
 message Two { Three three = 1; }
 
 message Three { uint64 value = 1; }
+
+message Cyclic {
+  One one = 1;
+  Cyclic cylcic = 2;
+}

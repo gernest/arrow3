@@ -1,6 +1,7 @@
 package arrow3
 
 import (
+	"errors"
 	"os"
 	"testing"
 
@@ -36,6 +37,20 @@ func TestMessage_Nested00(t *testing.T) {
 	msg := build(m.ProtoReflect())
 	schema := msg.schema.String()
 	match(t, "testdata/nested00.txt", schema)
+}
+func TestMessage_Cyclic(t *testing.T) {
+	m := &samples.Cyclic{}
+
+	err := func() (err error) {
+		defer func() {
+			err = recover().(error)
+		}()
+		build(m.ProtoReflect())
+		return nil
+	}()
+	if !errors.Is(err, ErrMxDepth) {
+		t.Errorf("expected %v got %v", ErrMxDepth, err)
+	}
 }
 
 func match(t testing.TB, path string, value string, write ...struct{}) {
