@@ -3,6 +3,7 @@ package arrow3
 import (
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/apache/arrow/go/v17/arrow"
 	"github.com/apache/arrow/go/v17/arrow/array"
@@ -83,7 +84,8 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 		Name:     string(field.Name()),
 		Nullable: nullable(field),
 		Metadata: arrow.MetadataFrom(map[string]string{
-			"path": name,
+			"path":             name,
+			"PARQUET:field_id": strconv.Itoa(int(field.Number())),
 		}),
 	}}
 	n.field.Type = n.baseType(field)

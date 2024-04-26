@@ -1,10 +1,10 @@
 schema:
   fields: 4
     - ts: type=timestamp[ms, tz=UTC], nullable
-    metadata: ["path": "ts"]
+    metadata: ["PARQUET:field_id": "1", "path": "ts"]
     - duration: type=duration[ms], nullable
-          metadata: ["path": "duration"]
+          metadata: ["PARQUET:field_id": "2", "path": "duration"]
     - ts_rep: type=list<item: timestamp[ms, tz=UTC], nullable>, nullable
-        metadata: ["path": "ts_rep"]
+        metadata: ["PARQUET:field_id": "3", "path": "ts_rep"]
     - duration_rep: type=list<item: duration[ms], nullable>, nullable
-              metadata: ["path": "duration_rep"]
+              metadata: ["PARQUET:field_id": "4", "path": "duration_rep"]
