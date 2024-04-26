@@ -91,7 +91,8 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 	}
 	// Try a message
 	if msg := field.Message(); msg != nil {
-		if isDuration(msg) {
+		switch msg {
+		case durationDesc:
 			n.field.Type = arrow.FixedWidthTypes.Duration_ms
 			n.field.Nullable = true
 			n.setup = func(b array.Builder) valueFn {
@@ -106,8 +107,7 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 					return nil
 				}
 			}
-		}
-		if isTs(msg) {
+		case tsDesc:
 			n.field.Type = arrow.FixedWidthTypes.Timestamp_ms
 			n.field.Nullable = true
 			n.setup = func(b array.Builder) valueFn {
@@ -366,19 +366,6 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 		t = arrow.MapOf(key, value)
 	}
 	return
-}
-
-var (
-	ts       = &timestamppb.Timestamp{}
-	duration = &durationpb.Duration{}
-)
-
-func isTs(msg protoreflect.MessageDescriptor) bool {
-	return ts.ProtoReflect().Descriptor() == msg
-}
-
-func isDuration(msg protoreflect.MessageDescriptor) bool {
-	return duration.ProtoReflect().Descriptor() == msg
 }
 
 func nullable(f protoreflect.FieldDescriptor) bool {
