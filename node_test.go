@@ -248,7 +248,7 @@ func TestAppendMessage_otelKeyValue(t *testing.T) {
 func TestSchema_MetricsData(t *testing.T) {
 	m := &metricsv1.MetricsData{}
 	msg := build(m.ProtoReflect())
-	schema, err := msg.toParquet()
+	schema, err := msg.Parquet()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -257,7 +257,7 @@ func TestSchema_MetricsData(t *testing.T) {
 func TestSchema_TracesData(t *testing.T) {
 	m := &tracev1.TracesData{}
 	msg := build(m.ProtoReflect())
-	schema, err := msg.toParquet()
+	schema, err := msg.Parquet()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -266,7 +266,7 @@ func TestSchema_TracesData(t *testing.T) {
 func TestSchema_LogssData(t *testing.T) {
 	m := &logsv1.LogsData{}
 	msg := build(m.ProtoReflect())
-	schema, err := msg.toParquet()
+	schema, err := msg.Parquet()
 	if err != nil {
 		t.Fatal(err)
 	}

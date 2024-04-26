@@ -6,6 +6,6 @@ import (
 	"github.com/apache/arrow/go/v17/parquet/schema"
 )
 
-func (msg *message) toParquet() (*schema.Schema, error) {
+func (msg *message) Parquet() (*schema.Schema, error) {
 	return pqarrow.ToParquet(msg.schema, parquet.NewWriterProperties(), pqarrow.DefaultWriterProps())
 }
