@@ -46,6 +46,14 @@ func (msg *message) Read(ctx context.Context, r parquet.ReaderAtSeeker, columns 
 
 // WriteParquet writes existing record as parquet file to w.
 func (msg *message) WriteParquet(w io.Writer) error {
+	r := msg.NewRecord()
+	defer r.Release()
+	return msg.WriteParquetRecords(w, r)
+}
+
+// WriteParquetRecords writes multiple records sequentially. Similar to doing
+// concat on records and writing as a single record.
+func (msg *message) WriteParquetRecords(w io.Writer, records ...arrow.Record) error {
 	f, err := pqarrow.NewFileWriter(msg.schema, w,
 		parquet.NewWriterProperties(msg.props...),
 		pqarrow.NewArrowWriterProperties(),
@@ -53,11 +61,20 @@ func (msg *message) WriteParquet(w io.Writer) error {
 	if err != nil {
 		return err
 	}
-	r := msg.NewRecord()
-	defer r.Release()
-	err = f.Write(r)
-	if err != nil {
-		return err
+	f.NewRowGroup()
+	chunk := make([]arrow.Array, len(records))
+	for i := 0; i < int(records[0].NumCols()); i++ {
+		for j := range records {
+			chunk[j] = records[j].Column(i)
+			a := arrow.NewChunked(chunk[0].DataType(), chunk)
+			err := f.WriteColumnChunked(a, 0, int64(a.Len()))
+			if err != nil {
+				a.Release()
+				f.Close()
+				return err
+			}
+			a.Release()
+		}
 	}
 	return f.Close()
 }
