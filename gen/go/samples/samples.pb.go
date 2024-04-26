@@ -876,6 +876,297 @@ func (x *Known) GetDurationRep() []*durationpb.Duration {
 	return nil
 }
 
+type OneOfScala struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Types that are assignable to Value:
+	//
+	//	*OneOfScala_Double
+	//	*OneOfScala_Float
+	//	*OneOfScala_Int32
+	//	*OneOfScala_Int64
+	//	*OneOfScala_Uint32
+	//	*OneOfScala_Uint64
+	//	*OneOfScala_Sint32
+	//	*OneOfScala_Sint64
+	//	*OneOfScala_Fixed32
+	//	*OneOfScala_Fixed64
+	//	*OneOfScala_Sfixed32
+	//	*OneOfScala_Sfixed64
+	//	*OneOfScala_Bool
+	//	*OneOfScala_String_
+	//	*OneOfScala_Bytes
+	Value isOneOfScala_Value `protobuf_oneof:"value"`
+	// Types that are assignable to Nested:
+	//
+	//	*OneOfScala_One
+	Nested isOneOfScala_Nested `protobuf_oneof:"nested"`
+}
+
+func (x *OneOfScala) Reset() {
+	*x = OneOfScala{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_samples_samples_proto_msgTypes[10]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *OneOfScala) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*OneOfScala) ProtoMessage() {}
+
+func (x *OneOfScala) ProtoReflect() protoreflect.Message {
+	mi := &file_samples_samples_proto_msgTypes[10]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use OneOfScala.ProtoReflect.Descriptor instead.
+func (*OneOfScala) Descriptor() ([]byte, []int) {
+	return file_samples_samples_proto_rawDescGZIP(), []int{10}
+}
+
+func (m *OneOfScala) GetValue() isOneOfScala_Value {
+	if m != nil {
+		return m.Value
+	}
+	return nil
+}
+
+func (x *OneOfScala) GetDouble() float64 {
+	if x, ok := x.GetValue().(*OneOfScala_Double); ok {
+		return x.Double
+	}
+	return 0
+}
+
+func (x *OneOfScala) GetFloat() float32 {
+	if x, ok := x.GetValue().(*OneOfScala_Float); ok {
+		return x.Float
+	}
+	return 0
+}
+
+func (x *OneOfScala) GetInt32() int32 {
+	if x, ok := x.GetValue().(*OneOfScala_Int32); ok {
+		return x.Int32
+	}
+	return 0
+}
+
+func (x *OneOfScala) GetInt64() int64 {
+	if x, ok := x.GetValue().(*OneOfScala_Int64); ok {
+		return x.Int64
+	}
+	return 0
+}
+
+func (x *OneOfScala) GetUint32() uint32 {
+	if x, ok := x.GetValue().(*OneOfScala_Uint32); ok {
+		return x.Uint32
+	}
+	return 0
+}
+
+func (x *OneOfScala) GetUint64() uint64 {
+	if x, ok := x.GetValue().(*OneOfScala_Uint64); ok {
+		return x.Uint64
+	}
+	return 0
+}
+
+func (x *OneOfScala) GetSint32() int32 {
+	if x, ok := x.GetValue().(*OneOfScala_Sint32); ok {
+		return x.Sint32
+	}
+	return 0
+}
+
+func (x *OneOfScala) GetSint64() int64 {
+	if x, ok := x.GetValue().(*OneOfScala_Sint64); ok {
+		return x.Sint64
+	}
+	return 0
+}
+
+func (x *OneOfScala) GetFixed32() uint32 {
+	if x, ok := x.GetValue().(*OneOfScala_Fixed32); ok {
+		return x.Fixed32
+	}
+	return 0
+}
+
+func (x *OneOfScala) GetFixed64() uint64 {
+	if x, ok := x.GetValue().(*OneOfScala_Fixed64); ok {
+		return x.Fixed64
+	}
+	return 0
+}
+
+func (x *OneOfScala) GetSfixed32() int32 {
+	if x, ok := x.GetValue().(*OneOfScala_Sfixed32); ok {
+		return x.Sfixed32
+	}
+	return 0
+}
+
+func (x *OneOfScala) GetSfixed64() int64 {
+	if x, ok := x.GetValue().(*OneOfScala_Sfixed64); ok {
+		return x.Sfixed64
+	}
+	return 0
+}
+
+func (x *OneOfScala) GetBool() bool {
+	if x, ok := x.GetValue().(*OneOfScala_Bool); ok {
+		return x.Bool
+	}
+	return false
+}
+
+func (x *OneOfScala) GetString_() string {
+	if x, ok := x.GetValue().(*OneOfScala_String_); ok {
+		return x.String_
+	}
+	return ""
+}
+
+func (x *OneOfScala) GetBytes() []byte {
+	if x, ok := x.GetValue().(*OneOfScala_Bytes); ok {
+		return x.Bytes
+	}
+	return nil
+}
+
+func (m *OneOfScala) GetNested() isOneOfScala_Nested {
+	if m != nil {
+		return m.Nested
+	}
+	return nil
+}
+
+func (x *OneOfScala) GetOne() *One {
+	if x, ok := x.GetNested().(*OneOfScala_One); ok {
+		return x.One
+	}
+	return nil
+}
+
+type isOneOfScala_Value interface {
+	isOneOfScala_Value()
+}
+
+type OneOfScala_Double struct {
+	Double float64 `protobuf:"fixed64,1,opt,name=double,proto3,oneof"`
+}
+
+type OneOfScala_Float struct {
+	Float float32 `protobuf:"fixed32,2,opt,name=float,proto3,oneof"`
+}
+
+type OneOfScala_Int32 struct {
+	Int32 int32 `protobuf:"varint,3,opt,name=int32,proto3,oneof"`
+}
+
+type OneOfScala_Int64 struct {
+	Int64 int64 `protobuf:"varint,4,opt,name=int64,proto3,oneof"`
+}
+
+type OneOfScala_Uint32 struct {
+	Uint32 uint32 `protobuf:"varint,5,opt,name=uint32,proto3,oneof"`
+}
+
+type OneOfScala_Uint64 struct {
+	Uint64 uint64 `protobuf:"varint,6,opt,name=uint64,proto3,oneof"`
+}
+
+type OneOfScala_Sint32 struct {
+	Sint32 int32 `protobuf:"zigzag32,7,opt,name=sint32,proto3,oneof"`
+}
+
+type OneOfScala_Sint64 struct {
+	Sint64 int64 `protobuf:"zigzag64,8,opt,name=sint64,proto3,oneof"`
+}
+
+type OneOfScala_Fixed32 struct {
+	Fixed32 uint32 `protobuf:"fixed32,9,opt,name=fixed32,proto3,oneof"`
+}
+
+type OneOfScala_Fixed64 struct {
+	Fixed64 uint64 `protobuf:"fixed64,10,opt,name=fixed64,proto3,oneof"`
+}
+
+type OneOfScala_Sfixed32 struct {
+	Sfixed32 int32 `protobuf:"fixed32,11,opt,name=sfixed32,proto3,oneof"`
+}
+
+type OneOfScala_Sfixed64 struct {
+	Sfixed64 int64 `protobuf:"fixed64,12,opt,name=sfixed64,proto3,oneof"`
+}
+
+type OneOfScala_Bool struct {
+	Bool bool `protobuf:"varint,13,opt,name=bool,proto3,oneof"`
+}
+
+type OneOfScala_String_ struct {
+	String_ string `protobuf:"bytes,14,opt,name=string,proto3,oneof"`
+}
+
+type OneOfScala_Bytes struct {
+	Bytes []byte `protobuf:"bytes,15,opt,name=bytes,proto3,oneof"`
+}
+
+func (*OneOfScala_Double) isOneOfScala_Value() {}
+
+func (*OneOfScala_Float) isOneOfScala_Value() {}
+
+func (*OneOfScala_Int32) isOneOfScala_Value() {}
+
+func (*OneOfScala_Int64) isOneOfScala_Value() {}
+
+func (*OneOfScala_Uint32) isOneOfScala_Value() {}
+
+func (*OneOfScala_Uint64) isOneOfScala_Value() {}
+
+func (*OneOfScala_Sint32) isOneOfScala_Value() {}
+
+func (*OneOfScala_Sint64) isOneOfScala_Value() {}
+
+func (*OneOfScala_Fixed32) isOneOfScala_Value() {}
+
+func (*OneOfScala_Fixed64) isOneOfScala_Value() {}
+
+func (*OneOfScala_Sfixed32) isOneOfScala_Value() {}
+
+func (*OneOfScala_Sfixed64) isOneOfScala_Value() {}
+
+func (*OneOfScala_Bool) isOneOfScala_Value() {}
+
+func (*OneOfScala_String_) isOneOfScala_Value() {}
+
+func (*OneOfScala_Bytes) isOneOfScala_Value() {}
+
+type isOneOfScala_Nested interface {
+	isOneOfScala_Nested()
+}
+
+type OneOfScala_One struct {
+	One *One `protobuf:"bytes,16,opt,name=one,proto3,oneof"`
+}
+
+func (*OneOfScala_One) isOneOfScala_Nested() {}
+
 var File_samples_samples_proto protoreflect.FileDescriptor
 
 var file_samples_samples_proto_rawDesc = []byte{
@@ -1013,11 +1304,39 @@ var file_samples_samples_proto_rawDesc = []byte{
 	0x6e, 0x5f, 0x72, 0x65, 0x70, 0x18, 0x04, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x67, 0x6f,
 	0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x44, 0x75,
 	0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x0b, 0x64, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e,
-	0x52, 0x65, 0x70, 0x42, 0x3a, 0x42, 0x0c, 0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x73, 0x50, 0x72,
-	0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x28, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e, 0x63, 0x6f,
-	0x6d, 0x2f, 0x67, 0x65, 0x72, 0x6e, 0x65, 0x73, 0x74, 0x2f, 0x61, 0x72, 0x72, 0x6f, 0x77, 0x33,
-	0x2f, 0x67, 0x65, 0x6e, 0x2f, 0x67, 0x6f, 0x2f, 0x73, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x73, 0x62,
-	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x52, 0x65, 0x70, 0x22, 0xbf, 0x03, 0x0a, 0x0a, 0x4f, 0x6e, 0x65, 0x4f, 0x66, 0x53, 0x63, 0x61,
+	0x6c, 0x61, 0x12, 0x18, 0x0a, 0x06, 0x64, 0x6f, 0x75, 0x62, 0x6c, 0x65, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x01, 0x48, 0x00, 0x52, 0x06, 0x64, 0x6f, 0x75, 0x62, 0x6c, 0x65, 0x12, 0x16, 0x0a, 0x05,
+	0x66, 0x6c, 0x6f, 0x61, 0x74, 0x18, 0x02, 0x20, 0x01, 0x28, 0x02, 0x48, 0x00, 0x52, 0x05, 0x66,
+	0x6c, 0x6f, 0x61, 0x74, 0x12, 0x16, 0x0a, 0x05, 0x69, 0x6e, 0x74, 0x33, 0x32, 0x18, 0x03, 0x20,
+	0x01, 0x28, 0x05, 0x48, 0x00, 0x52, 0x05, 0x69, 0x6e, 0x74, 0x33, 0x32, 0x12, 0x16, 0x0a, 0x05,
+	0x69, 0x6e, 0x74, 0x36, 0x34, 0x18, 0x04, 0x20, 0x01, 0x28, 0x03, 0x48, 0x00, 0x52, 0x05, 0x69,
+	0x6e, 0x74, 0x36, 0x34, 0x12, 0x18, 0x0a, 0x06, 0x75, 0x69, 0x6e, 0x74, 0x33, 0x32, 0x18, 0x05,
+	0x20, 0x01, 0x28, 0x0d, 0x48, 0x00, 0x52, 0x06, 0x75, 0x69, 0x6e, 0x74, 0x33, 0x32, 0x12, 0x18,
+	0x0a, 0x06, 0x75, 0x69, 0x6e, 0x74, 0x36, 0x34, 0x18, 0x06, 0x20, 0x01, 0x28, 0x04, 0x48, 0x00,
+	0x52, 0x06, 0x75, 0x69, 0x6e, 0x74, 0x36, 0x34, 0x12, 0x18, 0x0a, 0x06, 0x73, 0x69, 0x6e, 0x74,
+	0x33, 0x32, 0x18, 0x07, 0x20, 0x01, 0x28, 0x11, 0x48, 0x00, 0x52, 0x06, 0x73, 0x69, 0x6e, 0x74,
+	0x33, 0x32, 0x12, 0x18, 0x0a, 0x06, 0x73, 0x69, 0x6e, 0x74, 0x36, 0x34, 0x18, 0x08, 0x20, 0x01,
+	0x28, 0x12, 0x48, 0x00, 0x52, 0x06, 0x73, 0x69, 0x6e, 0x74, 0x36, 0x34, 0x12, 0x1a, 0x0a, 0x07,
+	0x66, 0x69, 0x78, 0x65, 0x64, 0x33, 0x32, 0x18, 0x09, 0x20, 0x01, 0x28, 0x07, 0x48, 0x00, 0x52,
+	0x07, 0x66, 0x69, 0x78, 0x65, 0x64, 0x33, 0x32, 0x12, 0x1a, 0x0a, 0x07, 0x66, 0x69, 0x78, 0x65,
+	0x64, 0x36, 0x34, 0x18, 0x0a, 0x20, 0x01, 0x28, 0x06, 0x48, 0x00, 0x52, 0x07, 0x66, 0x69, 0x78,
+	0x65, 0x64, 0x36, 0x34, 0x12, 0x1c, 0x0a, 0x08, 0x73, 0x66, 0x69, 0x78, 0x65, 0x64, 0x33, 0x32,
+	0x18, 0x0b, 0x20, 0x01, 0x28, 0x0f, 0x48, 0x00, 0x52, 0x08, 0x73, 0x66, 0x69, 0x78, 0x65, 0x64,
+	0x33, 0x32, 0x12, 0x1c, 0x0a, 0x08, 0x73, 0x66, 0x69, 0x78, 0x65, 0x64, 0x36, 0x34, 0x18, 0x0c,
+	0x20, 0x01, 0x28, 0x10, 0x48, 0x00, 0x52, 0x08, 0x73, 0x66, 0x69, 0x78, 0x65, 0x64, 0x36, 0x34,
+	0x12, 0x14, 0x0a, 0x04, 0x62, 0x6f, 0x6f, 0x6c, 0x18, 0x0d, 0x20, 0x01, 0x28, 0x08, 0x48, 0x00,
+	0x52, 0x04, 0x62, 0x6f, 0x6f, 0x6c, 0x12, 0x18, 0x0a, 0x06, 0x73, 0x74, 0x72, 0x69, 0x6e, 0x67,
+	0x18, 0x0e, 0x20, 0x01, 0x28, 0x09, 0x48, 0x00, 0x52, 0x06, 0x73, 0x74, 0x72, 0x69, 0x6e, 0x67,
+	0x12, 0x16, 0x0a, 0x05, 0x62, 0x79, 0x74, 0x65, 0x73, 0x18, 0x0f, 0x20, 0x01, 0x28, 0x0c, 0x48,
+	0x00, 0x52, 0x05, 0x62, 0x79, 0x74, 0x65, 0x73, 0x12, 0x18, 0x0a, 0x03, 0x6f, 0x6e, 0x65, 0x18,
+	0x10, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x04, 0x2e, 0x4f, 0x6e, 0x65, 0x48, 0x01, 0x52, 0x03, 0x6f,
+	0x6e, 0x65, 0x42, 0x07, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x42, 0x08, 0x0a, 0x06, 0x6e,
+	0x65, 0x73, 0x74, 0x65, 0x64, 0x42, 0x3a, 0x42, 0x0c, 0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x73,
+	0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x28, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e,
+	0x63, 0x6f, 0x6d, 0x2f, 0x67, 0x65, 0x72, 0x6e, 0x65, 0x73, 0x74, 0x2f, 0x61, 0x72, 0x72, 0x6f,
+	0x77, 0x33, 0x2f, 0x67, 0x65, 0x6e, 0x2f, 0x67, 0x6f, 0x2f, 0x73, 0x61, 0x6d, 0x70, 0x6c, 0x65,
+	0x73, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1032,7 +1351,7 @@ func file_samples_samples_proto_rawDescGZIP() []byte {
 	return file_samples_samples_proto_rawDescData
 }
 
-var file_samples_samples_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_samples_samples_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_samples_samples_proto_goTypes = []interface{}{
 	(*ScalarTypes)(nil),           // 0: ScalarTypes
 	(*ScalarTypesOptional)(nil),   // 1: ScalarTypesOptional
@@ -1044,12 +1363,13 @@ var file_samples_samples_proto_goTypes = []interface{}{
 	(*Three)(nil),                 // 7: Three
 	(*Cyclic)(nil),                // 8: Cyclic
 	(*Known)(nil),                 // 9: Known
-	nil,                           // 10: ScalarTypesMap.LabelsEntry
-	(*timestamppb.Timestamp)(nil), // 11: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),   // 12: google.protobuf.Duration
+	(*OneOfScala)(nil),            // 10: OneOfScala
+	nil,                           // 11: ScalarTypesMap.LabelsEntry
+	(*timestamppb.Timestamp)(nil), // 12: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),   // 13: google.protobuf.Duration
 }
 var file_samples_samples_proto_depIdxs = []int32{
-	10, // 0: ScalarTypesMap.labels:type_name -> ScalarTypesMap.LabelsEntry
+	11, // 0: ScalarTypesMap.labels:type_name -> ScalarTypesMap.LabelsEntry
 	0,  // 1: Nested.nested_scalar:type_name -> ScalarTypes
 	0,  // 2: Nested.nested_repeated_scalar:type_name -> ScalarTypes
 	5,  // 3: Nested.deep:type_name -> One
@@ -1057,15 +1377,16 @@ var file_samples_samples_proto_depIdxs = []int32{
 	7,  // 5: Two.three:type_name -> Three
 	5,  // 6: Cyclic.one:type_name -> One
 	8,  // 7: Cyclic.cylcic:type_name -> Cyclic
-	11, // 8: Known.ts:type_name -> google.protobuf.Timestamp
-	12, // 9: Known.duration:type_name -> google.protobuf.Duration
-	11, // 10: Known.ts_rep:type_name -> google.protobuf.Timestamp
-	12, // 11: Known.duration_rep:type_name -> google.protobuf.Duration
-	12, // [12:12] is the sub-list for method output_type
-	12, // [12:12] is the sub-list for method input_type
-	12, // [12:12] is the sub-list for extension type_name
-	12, // [12:12] is the sub-list for extension extendee
-	0,  // [0:12] is the sub-list for field type_name
+	12, // 8: Known.ts:type_name -> google.protobuf.Timestamp
+	13, // 9: Known.duration:type_name -> google.protobuf.Duration
+	12, // 10: Known.ts_rep:type_name -> google.protobuf.Timestamp
+	13, // 11: Known.duration_rep:type_name -> google.protobuf.Duration
+	5,  // 12: OneOfScala.one:type_name -> One
+	13, // [13:13] is the sub-list for method output_type
+	13, // [13:13] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_samples_samples_proto_init() }
@@ -1194,15 +1515,45 @@ func file_samples_samples_proto_init() {
 				return nil
 			}
 		}
+		file_samples_samples_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*OneOfScala); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	file_samples_samples_proto_msgTypes[1].OneofWrappers = []interface{}{}
+	file_samples_samples_proto_msgTypes[10].OneofWrappers = []interface{}{
+		(*OneOfScala_Double)(nil),
+		(*OneOfScala_Float)(nil),
+		(*OneOfScala_Int32)(nil),
+		(*OneOfScala_Int64)(nil),
+		(*OneOfScala_Uint32)(nil),
+		(*OneOfScala_Uint64)(nil),
+		(*OneOfScala_Sint32)(nil),
+		(*OneOfScala_Sint64)(nil),
+		(*OneOfScala_Fixed32)(nil),
+		(*OneOfScala_Fixed64)(nil),
+		(*OneOfScala_Sfixed32)(nil),
+		(*OneOfScala_Sfixed64)(nil),
+		(*OneOfScala_Bool)(nil),
+		(*OneOfScala_String_)(nil),
+		(*OneOfScala_Bytes)(nil),
+		(*OneOfScala_One)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_samples_samples_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

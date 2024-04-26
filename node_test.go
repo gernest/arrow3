@@ -57,6 +57,12 @@ func TestMessage_Cyclic(t *testing.T) {
 	}
 }
 
+func TestMessage_OneOf(t *testing.T) {
+	m := &samples.OneOfScala{}
+	msg := build(m.ProtoReflect())
+	schema := msg.schema.String()
+	match(t, "testdata/one_of.txt", schema)
+}
 func TestAppendMessage_scalar(t *testing.T) {
 	msg := &samples.ScalarTypes{}
 	b := build(msg.ProtoReflect())
@@ -165,6 +171,23 @@ func TestAppendMessage_scalar_known(t *testing.T) {
 		t.Fatal(err)
 	}
 	match(t, "testdata/scalar_known.json", string(data))
+}
+func TestAppendMessage_scalar_oneof(t *testing.T) {
+	msg := &samples.OneOfScala{}
+	b := build(msg.ProtoReflect())
+	b.build(memory.DefaultAllocator)
+	b.append(msg.ProtoReflect())
+	msg.Value = &samples.OneOfScala_Uint64{
+		Uint64: 10,
+	}
+	b.append(msg.ProtoReflect())
+
+	r := b.NewRecord()
+	data, err := r.MarshalJSON()
+	if err != nil {
+		t.Fatal(err)
+	}
+	match(t, "testdata/one_of.json", string(data))
 }
 
 func match(t testing.TB, path string, value string, write ...struct{}) {
