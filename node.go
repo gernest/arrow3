@@ -30,7 +30,9 @@ type node struct {
 }
 
 func build(msg protoreflect.Message) *message {
-	root := &node{desc: msg.Descriptor()}
+	root := &node{desc: msg.Descriptor(),
+		field: arrow.Field{},
+	}
 	fields := msg.Descriptor().Fields()
 	root.children = make([]*node, fields.Len())
 	a := make([]arrow.Field, fields.Len())
@@ -69,9 +71,19 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 	if depth >= maxDepth {
 		panic(ErrMxDepth)
 	}
+	name, ok := parent.field.Metadata.GetValue("path")
+	if ok {
+		name += "." + string(field.Name())
+	} else {
+		name = string(field.Name())
+	}
+	fmt.Println(name)
 	n := &node{parent: parent, desc: field, field: arrow.Field{
 		Name:     string(field.Name()),
 		Nullable: nullable(field),
+		Metadata: arrow.MetadataFrom(map[string]string{
+			"path": name,
+		}),
 	}}
 	n.field.Type = n.baseType(field)
 

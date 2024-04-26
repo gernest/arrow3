@@ -70,7 +70,7 @@ func TestAppendMessage_scalar(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	match(t, "testdata/scalar.json", string(data), struct{}{})
+	match(t, "testdata/scalar.json", string(data))
 }
 func TestAppendMessage_scalar_optional(t *testing.T) {
 	msg := &samples.ScalarTypesOptional{}
