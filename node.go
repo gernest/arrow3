@@ -7,6 +7,8 @@ import (
 	"github.com/apache/arrow/go/v17/arrow"
 	"github.com/apache/arrow/go/v17/arrow/array"
 	"github.com/apache/arrow/go/v17/arrow/memory"
+	commonv1 "go.opentelemetry.io/proto/otlp/common/v1"
+	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -119,6 +121,26 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 					}
 					e := v.Message().Interface().(*timestamppb.Timestamp)
 					a.Append(arrow.Timestamp(e.AsTime().UTC().UnixMilli()))
+					return nil
+				}
+			}
+
+		case otelAnyDescriptor:
+			n.field.Type = arrow.BinaryTypes.Binary
+			n.field.Nullable = true
+			n.setup = func(b array.Builder) valueFn {
+				a := b.(*array.BinaryBuilder)
+				return func(v protoreflect.Value) error {
+					if !v.IsValid() {
+						a.AppendNull()
+						return nil
+					}
+					e := v.Message().Interface().(*commonv1.AnyValue)
+					bs, err := proto.Marshal(e)
+					if err != nil {
+						return err
+					}
+					a.Append(bs)
 					return nil
 				}
 			}

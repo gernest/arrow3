@@ -1,0 +1,6 @@
+schema:
+  fields: 2
+    - key: type=utf8
+     metadata: ["path": "key"]
+    - value: type=binary, nullable
+       metadata: ["path": "value"]

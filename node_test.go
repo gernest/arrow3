@@ -8,6 +8,7 @@ import (
 
 	"github.com/apache/arrow/go/v17/arrow/memory"
 	"github.com/gernest/arrow3/gen/go/samples"
+	commonv1 "go.opentelemetry.io/proto/otlp/common/v1"
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -41,6 +42,12 @@ func TestMessage_Nested00(t *testing.T) {
 	msg := build(m.ProtoReflect())
 	schema := msg.schema.String()
 	match(t, "testdata/nested00.txt", schema)
+}
+func TestMessage_KeyValue(t *testing.T) {
+	m := &commonv1.KeyValue{}
+	msg := build(m.ProtoReflect())
+	schema := msg.schema.String()
+	match(t, "testdata/otel_key_value.txt", schema)
 }
 func TestMessage_Cyclic(t *testing.T) {
 	m := &samples.Cyclic{}
@@ -188,6 +195,25 @@ func TestAppendMessage_scalar_oneof(t *testing.T) {
 		t.Fatal(err)
 	}
 	match(t, "testdata/one_of.json", string(data))
+}
+func TestAppendMessage_otelKeyValue(t *testing.T) {
+	msg := &commonv1.KeyValue{}
+	b := build(msg.ProtoReflect())
+	b.build(memory.DefaultAllocator)
+	b.append(msg.ProtoReflect())
+	msg.Key = "hello"
+	msg.Value = &commonv1.AnyValue{
+		Value: &commonv1.AnyValue_StringValue{
+			StringValue: "world",
+		},
+	}
+	b.append(msg.ProtoReflect())
+	r := b.NewRecord()
+	data, err := r.MarshalJSON()
+	if err != nil {
+		t.Fatal(err)
+	}
+	match(t, "testdata/otel_key_value.json", string(data))
 }
 
 func match(t testing.TB, path string, value string, write ...struct{}) {
