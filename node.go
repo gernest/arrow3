@@ -77,7 +77,6 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 	} else {
 		name = string(field.Name())
 	}
-	fmt.Println(name)
 	n := &node{parent: parent, desc: field, field: arrow.Field{
 		Name:     string(field.Name()),
 		Nullable: nullable(field),

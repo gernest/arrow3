@@ -4,6 +4,7 @@ go 1.22.2
 
 require (
 	github.com/apache/arrow/go/v17 v17.0.0-20240425021025-32885c91a1c9
+	go.opentelemetry.io/proto/otlp v1.2.0
 	google.golang.org/protobuf v1.33.0
 )
 

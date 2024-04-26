@@ -1,5 +1,5 @@
 schema:
-  fields: 15
+  fields: 16
     - double: type=float64
         metadata: ["path": "double"]
     - float: type=float32
@@ -30,3 +30,5 @@ schema:
         metadata: ["path": "string"]
     - bytes: type=binary, nullable
        metadata: ["path": "bytes"]
+    - one: type=struct<two: struct<three: struct<value: uint64>>>, nullable
+     metadata: ["path": "one"]
