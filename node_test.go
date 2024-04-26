@@ -23,6 +23,7 @@ func TestMessage_scalar(t *testing.T) {
 	schema := msg.schema.String()
 	match(t, "testdata/scalar.txt", schema)
 }
+
 func TestMessage_scalarOptional(t *testing.T) {
 	m := &samples.ScalarTypesOptional{}
 	msg := build(m.ProtoReflect())
@@ -242,6 +243,34 @@ func TestAppendMessage_otelKeyValue(t *testing.T) {
 		t.Fatal(err)
 	}
 	match(t, "testdata/otel_key_value.json", string(data))
+}
+
+func TestSchema_MetricsData(t *testing.T) {
+	m := &metricsv1.MetricsData{}
+	msg := build(m.ProtoReflect())
+	schema, err := msg.toParquet()
+	if err != nil {
+		t.Fatal(err)
+	}
+	match(t, "testdata/otel_metrics_data_schema.txt", schema.String())
+}
+func TestSchema_TracesData(t *testing.T) {
+	m := &tracev1.TracesData{}
+	msg := build(m.ProtoReflect())
+	schema, err := msg.toParquet()
+	if err != nil {
+		t.Fatal(err)
+	}
+	match(t, "testdata/otel_traces_data_schema.txt", schema.String())
+}
+func TestSchema_LogssData(t *testing.T) {
+	m := &logsv1.LogsData{}
+	msg := build(m.ProtoReflect())
+	schema, err := msg.toParquet()
+	if err != nil {
+		t.Fatal(err)
+	}
+	match(t, "testdata/otel_logs_data_schema.txt", schema.String())
 }
 
 func match(t testing.TB, path string, value string, write ...struct{}) {

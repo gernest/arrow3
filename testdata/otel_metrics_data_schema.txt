@@ -1,0 +1,283 @@
+repeated group field_id=-1 schema {
+  optional group field_id=-1 resource_metrics (List) {
+    repeated group field_id=-1 list {
+      optional group field_id=-1 element {
+        optional group field_id=-1 resource {
+          optional group field_id=-1 attributes (List) {
+            repeated group field_id=-1 list {
+              optional group field_id=-1 element {
+                required byte_array field_id=-1 key (String);
+                optional byte_array field_id=-1 value;
+              }
+            }
+          }
+          required int32 field_id=-1 dropped_attributes_count (Int(bitWidth=32, isSigned=false));
+        }
+        optional group field_id=-1 scope_metrics (List) {
+          repeated group field_id=-1 list {
+            optional group field_id=-1 element {
+              optional group field_id=-1 scope {
+                required byte_array field_id=-1 name (String);
+                required byte_array field_id=-1 version (String);
+                optional group field_id=-1 attributes (List) {
+                  repeated group field_id=-1 list {
+                    optional group field_id=-1 element {
+                      required byte_array field_id=-1 key (String);
+                      optional byte_array field_id=-1 value;
+                    }
+                  }
+                }
+                required int32 field_id=-1 dropped_attributes_count (Int(bitWidth=32, isSigned=false));
+              }
+              optional group field_id=-1 metrics (List) {
+                repeated group field_id=-1 list {
+                  optional group field_id=-1 element {
+                    required byte_array field_id=-1 name (String);
+                    required byte_array field_id=-1 description (String);
+                    required byte_array field_id=-1 unit (String);
+                    optional group field_id=-1 gauge {
+                      optional group field_id=-1 data_points (List) {
+                        repeated group field_id=-1 list {
+                          optional group field_id=-1 element {
+                            optional group field_id=-1 attributes (List) {
+                              repeated group field_id=-1 list {
+                                optional group field_id=-1 element {
+                                  required byte_array field_id=-1 key (String);
+                                  optional byte_array field_id=-1 value;
+                                }
+                              }
+                            }
+                            required int64 field_id=-1 start_time_unix_nano (Int(bitWidth=64, isSigned=false));
+                            required int64 field_id=-1 time_unix_nano (Int(bitWidth=64, isSigned=false));
+                            required double field_id=-1 as_double;
+                            required int64 field_id=-1 as_int (Int(bitWidth=64, isSigned=true));
+                            optional group field_id=-1 exemplars (List) {
+                              repeated group field_id=-1 list {
+                                optional group field_id=-1 element {
+                                  optional group field_id=-1 filtered_attributes (List) {
+                                    repeated group field_id=-1 list {
+                                      optional group field_id=-1 element {
+                                        required byte_array field_id=-1 key (String);
+                                        optional byte_array field_id=-1 value;
+                                      }
+                                    }
+                                  }
+                                  required int64 field_id=-1 time_unix_nano (Int(bitWidth=64, isSigned=false));
+                                  required double field_id=-1 as_double;
+                                  required int64 field_id=-1 as_int (Int(bitWidth=64, isSigned=true));
+                                  optional byte_array field_id=-1 span_id;
+                                  optional byte_array field_id=-1 trace_id;
+                                }
+                              }
+                            }
+                            required int32 field_id=-1 flags (Int(bitWidth=32, isSigned=false));
+                          }
+                        }
+                      }
+                    }
+                    optional group field_id=-1 sum {
+                      optional group field_id=-1 data_points (List) {
+                        repeated group field_id=-1 list {
+                          optional group field_id=-1 element {
+                            optional group field_id=-1 attributes (List) {
+                              repeated group field_id=-1 list {
+                                optional group field_id=-1 element {
+                                  required byte_array field_id=-1 key (String);
+                                  optional byte_array field_id=-1 value;
+                                }
+                              }
+                            }
+                            required int64 field_id=-1 start_time_unix_nano (Int(bitWidth=64, isSigned=false));
+                            required int64 field_id=-1 time_unix_nano (Int(bitWidth=64, isSigned=false));
+                            required double field_id=-1 as_double;
+                            required int64 field_id=-1 as_int (Int(bitWidth=64, isSigned=true));
+                            optional group field_id=-1 exemplars (List) {
+                              repeated group field_id=-1 list {
+                                optional group field_id=-1 element {
+                                  optional group field_id=-1 filtered_attributes (List) {
+                                    repeated group field_id=-1 list {
+                                      optional group field_id=-1 element {
+                                        required byte_array field_id=-1 key (String);
+                                        optional byte_array field_id=-1 value;
+                                      }
+                                    }
+                                  }
+                                  required int64 field_id=-1 time_unix_nano (Int(bitWidth=64, isSigned=false));
+                                  required double field_id=-1 as_double;
+                                  required int64 field_id=-1 as_int (Int(bitWidth=64, isSigned=true));
+                                  optional byte_array field_id=-1 span_id;
+                                  optional byte_array field_id=-1 trace_id;
+                                }
+                              }
+                            }
+                            required int32 field_id=-1 flags (Int(bitWidth=32, isSigned=false));
+                          }
+                        }
+                      }
+                      required int32 field_id=-1 aggregation_temporality (Int(bitWidth=32, isSigned=true));
+                      required boolean field_id=-1 is_monotonic;
+                    }
+                    optional group field_id=-1 histogram {
+                      optional group field_id=-1 data_points (List) {
+                        repeated group field_id=-1 list {
+                          optional group field_id=-1 element {
+                            optional group field_id=-1 attributes (List) {
+                              repeated group field_id=-1 list {
+                                optional group field_id=-1 element {
+                                  required byte_array field_id=-1 key (String);
+                                  optional byte_array field_id=-1 value;
+                                }
+                              }
+                            }
+                            required int64 field_id=-1 start_time_unix_nano (Int(bitWidth=64, isSigned=false));
+                            required int64 field_id=-1 time_unix_nano (Int(bitWidth=64, isSigned=false));
+                            required int64 field_id=-1 count (Int(bitWidth=64, isSigned=false));
+                            optional double field_id=-1 sum;
+                            required group field_id=-1 bucket_counts (List) {
+                              repeated group field_id=-1 list {
+                                optional int64 field_id=-1 element (Int(bitWidth=64, isSigned=false));
+                              }
+                            }
+                            required group field_id=-1 explicit_bounds (List) {
+                              repeated group field_id=-1 list {
+                                optional double field_id=-1 element;
+                              }
+                            }
+                            optional group field_id=-1 exemplars (List) {
+                              repeated group field_id=-1 list {
+                                optional group field_id=-1 element {
+                                  optional group field_id=-1 filtered_attributes (List) {
+                                    repeated group field_id=-1 list {
+                                      optional group field_id=-1 element {
+                                        required byte_array field_id=-1 key (String);
+                                        optional byte_array field_id=-1 value;
+                                      }
+                                    }
+                                  }
+                                  required int64 field_id=-1 time_unix_nano (Int(bitWidth=64, isSigned=false));
+                                  required double field_id=-1 as_double;
+                                  required int64 field_id=-1 as_int (Int(bitWidth=64, isSigned=true));
+                                  optional byte_array field_id=-1 span_id;
+                                  optional byte_array field_id=-1 trace_id;
+                                }
+                              }
+                            }
+                            required int32 field_id=-1 flags (Int(bitWidth=32, isSigned=false));
+                            optional double field_id=-1 min;
+                            optional double field_id=-1 max;
+                          }
+                        }
+                      }
+                      required int32 field_id=-1 aggregation_temporality (Int(bitWidth=32, isSigned=true));
+                    }
+                    optional group field_id=-1 exponential_histogram {
+                      optional group field_id=-1 data_points (List) {
+                        repeated group field_id=-1 list {
+                          optional group field_id=-1 element {
+                            optional group field_id=-1 attributes (List) {
+                              repeated group field_id=-1 list {
+                                optional group field_id=-1 element {
+                                  required byte_array field_id=-1 key (String);
+                                  optional byte_array field_id=-1 value;
+                                }
+                              }
+                            }
+                            required int64 field_id=-1 start_time_unix_nano (Int(bitWidth=64, isSigned=false));
+                            required int64 field_id=-1 time_unix_nano (Int(bitWidth=64, isSigned=false));
+                            required int64 field_id=-1 count (Int(bitWidth=64, isSigned=false));
+                            optional double field_id=-1 sum;
+                            required int32 field_id=-1 scale (Int(bitWidth=32, isSigned=true));
+                            required int64 field_id=-1 zero_count (Int(bitWidth=64, isSigned=false));
+                            optional group field_id=-1 positive {
+                              required int32 field_id=-1 offset (Int(bitWidth=32, isSigned=true));
+                              required group field_id=-1 bucket_counts (List) {
+                                repeated group field_id=-1 list {
+                                  optional int64 field_id=-1 element (Int(bitWidth=64, isSigned=false));
+                                }
+                              }
+                            }
+                            optional group field_id=-1 negative {
+                              required int32 field_id=-1 offset (Int(bitWidth=32, isSigned=true));
+                              required group field_id=-1 bucket_counts (List) {
+                                repeated group field_id=-1 list {
+                                  optional int64 field_id=-1 element (Int(bitWidth=64, isSigned=false));
+                                }
+                              }
+                            }
+                            required int32 field_id=-1 flags (Int(bitWidth=32, isSigned=false));
+                            optional group field_id=-1 exemplars (List) {
+                              repeated group field_id=-1 list {
+                                optional group field_id=-1 element {
+                                  optional group field_id=-1 filtered_attributes (List) {
+                                    repeated group field_id=-1 list {
+                                      optional group field_id=-1 element {
+                                        required byte_array field_id=-1 key (String);
+                                        optional byte_array field_id=-1 value;
+                                      }
+                                    }
+                                  }
+                                  required int64 field_id=-1 time_unix_nano (Int(bitWidth=64, isSigned=false));
+                                  required double field_id=-1 as_double;
+                                  required int64 field_id=-1 as_int (Int(bitWidth=64, isSigned=true));
+                                  optional byte_array field_id=-1 span_id;
+                                  optional byte_array field_id=-1 trace_id;
+                                }
+                              }
+                            }
+                            optional double field_id=-1 min;
+                            optional double field_id=-1 max;
+                            required double field_id=-1 zero_threshold;
+                          }
+                        }
+                      }
+                      required int32 field_id=-1 aggregation_temporality (Int(bitWidth=32, isSigned=true));
+                    }
+                    optional group field_id=-1 summary {
+                      optional group field_id=-1 data_points (List) {
+                        repeated group field_id=-1 list {
+                          optional group field_id=-1 element {
+                            optional group field_id=-1 attributes (List) {
+                              repeated group field_id=-1 list {
+                                optional group field_id=-1 element {
+                                  required byte_array field_id=-1 key (String);
+                                  optional byte_array field_id=-1 value;
+                                }
+                              }
+                            }
+                            required int64 field_id=-1 start_time_unix_nano (Int(bitWidth=64, isSigned=false));
+                            required int64 field_id=-1 time_unix_nano (Int(bitWidth=64, isSigned=false));
+                            required int64 field_id=-1 count (Int(bitWidth=64, isSigned=false));
+                            required double field_id=-1 sum;
+                            optional group field_id=-1 quantile_values (List) {
+                              repeated group field_id=-1 list {
+                                optional group field_id=-1 element {
+                                  required double field_id=-1 quantile;
+                                  required double field_id=-1 value;
+                                }
+                              }
+                            }
+                            required int32 field_id=-1 flags (Int(bitWidth=32, isSigned=false));
+                          }
+                        }
+                      }
+                    }
+                    optional group field_id=-1 metadata (List) {
+                      repeated group field_id=-1 list {
+                        optional group field_id=-1 element {
+                          required byte_array field_id=-1 key (String);
+                          optional byte_array field_id=-1 value;
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              required byte_array field_id=-1 schema_url (String);
+            }
+          }
+        }
+        required byte_array field_id=-1 schema_url (String);
+      }
+    }
+  }
+}
