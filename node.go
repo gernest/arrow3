@@ -3,6 +3,7 @@ package arrow3
 import (
 	"errors"
 	"fmt"
+	"math"
 	"strconv"
 
 	"github.com/apache/arrow/go/v17/arrow"
@@ -63,6 +64,10 @@ func build(msg protoreflect.Message) *message {
 	}
 	// ZSTD is pretty good for all cases. Default level is reasonable.
 	props = append(props, parquet.WithCompression(compress.Codecs.Zstd))
+	// All writes are on a single row group. This is needed because we treat rows
+	// are sample ID and we need to keep the mapping
+	props = append(props, parquet.WithMaxRowGroupLength(math.MaxInt))
+
 	ps, err := pqarrow.ToParquet(as, parquet.NewWriterProperties(props...), pqarrow.DefaultWriterProps())
 	if err != nil {
 		panic(err)
@@ -71,6 +76,7 @@ func build(msg protoreflect.Message) *message {
 		root:    root,
 		schema:  as,
 		parquet: ps,
+		props:   props,
 	}
 }
 
@@ -79,6 +85,7 @@ type message struct {
 	schema  *arrow.Schema
 	parquet *schema.Schema
 	builder *array.RecordBuilder
+	props   []parquet.WriterProperty
 }
 
 func (m *message) build(mem memory.Allocator) {
