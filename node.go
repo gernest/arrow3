@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	maxDepth = 5
+	maxDepth = 10
 )
 
 var ErrMxDepth = errors.New("max depth reached, either the message is deeply nested or a circular dependency was introduced")
@@ -245,6 +245,16 @@ func (n *node) WriteMessage(msg protoreflect.Message) {
 
 func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 	switch field.Kind() {
+	case protoreflect.EnumKind:
+		t = arrow.PrimitiveTypes.Int32
+
+		n.setup = func(b array.Builder) valueFn {
+			a := b.(*array.Int32Builder)
+			return func(v protoreflect.Value) error {
+				a.Append(int32(v.Enum()))
+				return nil
+			}
+		}
 	case protoreflect.BoolKind:
 		t = arrow.FixedWidthTypes.Boolean
 
