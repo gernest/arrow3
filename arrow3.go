@@ -47,7 +47,7 @@ func (s *Schema[T]) NewRecord() arrow.Record {
 }
 
 // Parquet returns schema as parquet schema
-func (s *Schema[T]) Parquet() (*schema.Schema, error) {
+func (s *Schema[T]) Parquet() *schema.Schema {
 	return s.msg.Parquet()
 }
 

@@ -8,11 +8,13 @@ import (
 	"github.com/apache/arrow/go/v17/arrow"
 	"github.com/apache/arrow/go/v17/arrow/array"
 	"github.com/apache/arrow/go/v17/arrow/memory"
+	"github.com/apache/arrow/go/v17/parquet"
+	"github.com/apache/arrow/go/v17/parquet/compress"
+	"github.com/apache/arrow/go/v17/parquet/pqarrow"
+	"github.com/apache/arrow/go/v17/parquet/schema"
 	commonv1 "go.opentelemetry.io/proto/otlp/common/v1"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
-	"google.golang.org/protobuf/types/known/durationpb"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 const (
@@ -43,15 +45,39 @@ func build(msg protoreflect.Message) *message {
 		root.children[i] = createNode(root, fields.Get(i), 0)
 		a[i] = root.children[i].field
 	}
+	as := arrow.NewSchema(a, nil)
+
+	// we need to apply compression on all fields and use dictionary for binary and
+	// string columns.
+	bs, err := pqarrow.ToParquet(as, parquet.NewWriterProperties(), pqarrow.DefaultWriterProps())
+	if err != nil {
+		panic(err)
+	}
+	var props []parquet.WriterProperty
+
+	for i := 0; i < bs.NumColumns(); i++ {
+		col := bs.Column(i)
+		if col.PhysicalType() == parquet.Types.ByteArray {
+			props = append(props, parquet.WithDictionaryPath(col.ColumnPath(), true))
+		}
+	}
+	// ZSTD is pretty good for all cases. Default level is reasonable.
+	props = append(props, parquet.WithCompression(compress.Codecs.Zstd))
+	ps, err := pqarrow.ToParquet(as, parquet.NewWriterProperties(props...), pqarrow.DefaultWriterProps())
+	if err != nil {
+		panic(err)
+	}
 	return &message{
-		root:   root,
-		schema: arrow.NewSchema(a, nil),
+		root:    root,
+		schema:  as,
+		parquet: ps,
 	}
 }
 
 type message struct {
 	root    *node
 	schema  *arrow.Schema
+	parquet *schema.Schema
 	builder *array.RecordBuilder
 }
 
@@ -96,37 +122,6 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 	// Try a message
 	if msg := field.Message(); msg != nil {
 		switch msg {
-		case durationDesc:
-			n.field.Type = arrow.FixedWidthTypes.Duration_ms
-			n.field.Nullable = true
-			n.setup = func(b array.Builder) valueFn {
-				a := b.(*array.DurationBuilder)
-				return func(v protoreflect.Value) error {
-					if !v.IsValid() {
-						a.AppendNull()
-						return nil
-					}
-					e := v.Message().Interface().(*durationpb.Duration)
-					a.Append(arrow.Duration(e.AsDuration().Milliseconds()))
-					return nil
-				}
-			}
-		case tsDesc:
-			n.field.Type = arrow.FixedWidthTypes.Timestamp_ms
-			n.field.Nullable = true
-			n.setup = func(b array.Builder) valueFn {
-				a := b.(*array.TimestampBuilder)
-				return func(v protoreflect.Value) error {
-					if !v.IsValid() {
-						a.AppendNull()
-						return nil
-					}
-					e := v.Message().Interface().(*timestamppb.Timestamp)
-					a.Append(arrow.Timestamp(e.AsTime().UTC().UnixMilli()))
-					return nil
-				}
-			}
-
 		case otelAnyDescriptor:
 			n.field.Type = arrow.BinaryTypes.Binary
 			n.field.Nullable = true
