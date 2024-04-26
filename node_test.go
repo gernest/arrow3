@@ -9,7 +9,10 @@ import (
 	"github.com/apache/arrow/go/v17/arrow/memory"
 	"github.com/gernest/arrow3/gen/go/samples"
 	commonv1 "go.opentelemetry.io/proto/otlp/common/v1"
+	logsv1 "go.opentelemetry.io/proto/otlp/logs/v1"
 	metricsv1 "go.opentelemetry.io/proto/otlp/metrics/v1"
+	tracev1 "go.opentelemetry.io/proto/otlp/trace/v1"
+
 	"google.golang.org/protobuf/types/known/durationpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
@@ -45,10 +48,28 @@ func TestMessage_Nested00(t *testing.T) {
 	match(t, "testdata/nested00.txt", schema)
 }
 func TestMessage_KeyValue(t *testing.T) {
+	m := &commonv1.KeyValue{}
+	msg := build(m.ProtoReflect())
+	schema := msg.schema.String()
+	match(t, "testdata/otel_key_value.txt", schema)
+}
+func TestMessage_MetricsData(t *testing.T) {
 	m := &metricsv1.MetricsData{}
 	msg := build(m.ProtoReflect())
 	schema := msg.schema.String()
-	match(t, "testdata/otel_metrics_data.txt", schema, struct{}{})
+	match(t, "testdata/otel_metrics_data.txt", schema)
+}
+func TestMessage_TraceData(t *testing.T) {
+	m := &tracev1.TracesData{}
+	msg := build(m.ProtoReflect())
+	schema := msg.schema.String()
+	match(t, "testdata/otel_trace_data.txt", schema)
+}
+func TestMessage_LogsData(t *testing.T) {
+	m := &logsv1.LogsData{}
+	msg := build(m.ProtoReflect())
+	schema := msg.schema.String()
+	match(t, "testdata/otel_logs_data.txt", schema)
 }
 func TestMessage_metricsData(t *testing.T) {
 	m := &commonv1.KeyValue{}
