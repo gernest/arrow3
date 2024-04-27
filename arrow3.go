@@ -71,6 +71,11 @@ func (s *Schema[T]) WriteParquetRecords(w io.Writer, records ...arrow.Record) er
 	return s.msg.WriteParquetRecords(w, records...)
 }
 
+// Proto decodes rows and returns them as proto messages.
+func (s *Schema[T]) Proto(r arrow.Record, rows []int) []T {
+	return unmarshal[T](s.msg.root, r, rows)
+}
+
 func (s *Schema[T]) Release() {
 	s.msg.builder.Release()
 }
