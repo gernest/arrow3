@@ -33,17 +33,21 @@ type node struct {
 	write    valueFn
 	desc     protoreflect.Descriptor
 	children []*node
+	hash     map[string]*node
 }
 
 func build(msg protoreflect.Message) *message {
 	root := &node{desc: msg.Descriptor(),
 		field: arrow.Field{},
+		hash:  make(map[string]*node),
 	}
 	fields := msg.Descriptor().Fields()
 	root.children = make([]*node, fields.Len())
 	a := make([]arrow.Field, fields.Len())
 	for i := 0; i < fields.Len(); i++ {
-		root.children[i] = createNode(root, fields.Get(i), 0)
+		x := createNode(root, fields.Get(i), 0)
+		root.children[i] = x
+		root.hash[x.field.Name] = x
 		a[i] = root.children[i].field
 	}
 	as := arrow.NewSchema(a, nil)
@@ -120,7 +124,7 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 			"path":             name,
 			"PARQUET:field_id": strconv.Itoa(int(field.Number())),
 		}),
-	}}
+	}, hash: make(map[string]*node)}
 	n.field.Type = n.baseType(field)
 
 	if n.field.Type != nil {
@@ -179,7 +183,9 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 		n.children = make([]*node, f.Len())
 		a := make([]arrow.Field, f.Len())
 		for i := 0; i < f.Len(); i++ {
-			n.children[i] = createNode(n, f.Get(i), depth+1)
+			x := createNode(n, f.Get(i), depth+1)
+			n.children[i] = x
+			n.hash[x.field.Name] = x
 			a[i] = n.children[i].field
 		}
 		n.field.Type = arrow.StructOf(a...)
