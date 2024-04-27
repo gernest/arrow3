@@ -1,6 +1,7 @@
 package arrow3
 
 import (
+	"bytes"
 	"errors"
 	"os"
 	"testing"
@@ -355,5 +356,19 @@ func match(t testing.TB, path string, value string, write ...struct{}) {
 	}
 	if string(b) != value {
 		t.Errorf("------> want \n%s\n------> got\n%s", string(b), value)
+	}
+}
+
+func matchBytes(t testing.TB, path string, value []byte, write ...struct{}) {
+	t.Helper()
+	if len(write) > 0 {
+		os.WriteFile(path, []byte(value), 0600)
+	}
+	b, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatalf("failed reading file %s", path)
+	}
+	if !bytes.Equal(b, value) {
+		t.Error("mismatch")
 	}
 }
