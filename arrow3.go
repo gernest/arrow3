@@ -1,10 +1,13 @@
 package arrow3
 
 import (
+	"context"
 	"errors"
+	"io"
 
 	"github.com/apache/arrow/go/v17/arrow"
 	"github.com/apache/arrow/go/v17/arrow/memory"
+	"github.com/apache/arrow/go/v17/parquet"
 	"github.com/apache/arrow/go/v17/parquet/schema"
 	"google.golang.org/protobuf/proto"
 )
@@ -54,6 +57,18 @@ func (s *Schema[T]) Parquet() *schema.Schema {
 // Parquet returns schema as arrow schema
 func (s *Schema[T]) Schema() *arrow.Schema {
 	return s.msg.schema
+}
+
+func (s *Schema[T]) Read(ctx context.Context, r parquet.ReaderAtSeeker, columns []int) (arrow.Record, error) {
+	return s.msg.Read(ctx, r, columns)
+}
+
+func (s *Schema[T]) WriteParquet(w io.Writer) error {
+	return s.msg.WriteParquet(w)
+}
+
+func (s *Schema[T]) WriteParquetRecords(w io.Writer, records ...arrow.Record) error {
+	return s.msg.WriteParquetRecords(w, records...)
 }
 
 func (s *Schema[T]) Release() {
