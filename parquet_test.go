@@ -47,7 +47,7 @@ func TestRead(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	matchBytes(t, "testdata/otel_metrics_data.parquet", o.Bytes(), struct{}{})
+	matchBytes(t, "testdata/otel_metrics_data.parquet", o.Bytes())
 
 	f, err := os.Open("testdata/otel_metrics_data.parquet")
 	if err != nil {
@@ -62,7 +62,7 @@ func TestRead(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	match(t, "testdata/otel_metrics_data_parquet_read.json", string(data), struct{}{})
+	match(t, "testdata/otel_metrics_data_parquet_read.json", string(data))
 
 	rd := unmarshal[*metricsv1.MetricsData](b.root, r, []int{1})
 
@@ -70,6 +70,5 @@ func TestRead(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	match(t, "testdata/otel_metrics_data_parquet_read_decoded.json", string(data), struct{}{})
-	t.Error()
+	match(t, "testdata/otel_metrics_data_parquet_read_decoded.json", string(data))
 }

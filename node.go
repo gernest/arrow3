@@ -57,6 +57,9 @@ func unmarshal[T proto.Message](n *node, r arrow.Record, rows []int) []T {
 			if !ok {
 				panic(fmt.Sprintf("arrow3: field %s not found in node %v", name, n.field.Name))
 			}
+			if r.Column(i).IsNull(row) {
+				continue
+			}
 			fs := nx.desc.(protoreflect.FieldDescriptor)
 			switch {
 			case fs.IsList():
@@ -292,6 +295,9 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 				nx, ok := n.hash[f.Name]
 				if !ok {
 					panic(fmt.Sprintf("arrow3: field %s not found in node %v", f.Name, n.field.Name))
+				}
+				if s.Field(j).IsNull(row) {
+					continue
 				}
 				fs := nx.desc.(protoreflect.FieldDescriptor)
 				switch {
