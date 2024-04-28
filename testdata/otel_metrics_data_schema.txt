@@ -49,8 +49,8 @@ repeated group field_id=-1 schema {
                             }
                             required int64 field_id=2 start_time_unix_nano (Int(bitWidth=64, isSigned=false));
                             required int64 field_id=3 time_unix_nano (Int(bitWidth=64, isSigned=false));
-                            required double field_id=4 as_double;
-                            required int64 field_id=6 as_int (Int(bitWidth=64, isSigned=true));
+                            optional double field_id=4 as_double;
+                            optional int64 field_id=6 as_int (Int(bitWidth=64, isSigned=true));
                             optional group field_id=-1 exemplars (List) {
                               repeated group field_id=-1 list {
                                 optional group field_id=-1 element {
@@ -63,8 +63,8 @@ repeated group field_id=-1 schema {
                                     }
                                   }
                                   required int64 field_id=2 time_unix_nano (Int(bitWidth=64, isSigned=false));
-                                  required double field_id=3 as_double;
-                                  required int64 field_id=6 as_int (Int(bitWidth=64, isSigned=true));
+                                  optional double field_id=3 as_double;
+                                  optional int64 field_id=6 as_int (Int(bitWidth=64, isSigned=true));
                                   optional byte_array field_id=4 span_id;
                                   optional byte_array field_id=5 trace_id;
                                 }
@@ -89,8 +89,8 @@ repeated group field_id=-1 schema {
                             }
                             required int64 field_id=2 start_time_unix_nano (Int(bitWidth=64, isSigned=false));
                             required int64 field_id=3 time_unix_nano (Int(bitWidth=64, isSigned=false));
-                            required double field_id=4 as_double;
-                            required int64 field_id=6 as_int (Int(bitWidth=64, isSigned=true));
+                            optional double field_id=4 as_double;
+                            optional int64 field_id=6 as_int (Int(bitWidth=64, isSigned=true));
                             optional group field_id=-1 exemplars (List) {
                               repeated group field_id=-1 list {
                                 optional group field_id=-1 element {
@@ -103,8 +103,8 @@ repeated group field_id=-1 schema {
                                     }
                                   }
                                   required int64 field_id=2 time_unix_nano (Int(bitWidth=64, isSigned=false));
-                                  required double field_id=3 as_double;
-                                  required int64 field_id=6 as_int (Int(bitWidth=64, isSigned=true));
+                                  optional double field_id=3 as_double;
+                                  optional int64 field_id=6 as_int (Int(bitWidth=64, isSigned=true));
                                   optional byte_array field_id=4 span_id;
                                   optional byte_array field_id=5 trace_id;
                                 }
@@ -155,8 +155,8 @@ repeated group field_id=-1 schema {
                                     }
                                   }
                                   required int64 field_id=2 time_unix_nano (Int(bitWidth=64, isSigned=false));
-                                  required double field_id=3 as_double;
-                                  required int64 field_id=6 as_int (Int(bitWidth=64, isSigned=true));
+                                  optional double field_id=3 as_double;
+                                  optional int64 field_id=6 as_int (Int(bitWidth=64, isSigned=true));
                                   optional byte_array field_id=4 span_id;
                                   optional byte_array field_id=5 trace_id;
                                 }
@@ -217,8 +217,8 @@ repeated group field_id=-1 schema {
                                     }
                                   }
                                   required int64 field_id=2 time_unix_nano (Int(bitWidth=64, isSigned=false));
-                                  required double field_id=3 as_double;
-                                  required int64 field_id=6 as_int (Int(bitWidth=64, isSigned=true));
+                                  optional double field_id=3 as_double;
+                                  optional int64 field_id=6 as_int (Int(bitWidth=64, isSigned=true));
                                   optional byte_array field_id=4 span_id;
                                   optional byte_array field_id=5 trace_id;
                                 }

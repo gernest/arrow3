@@ -57,8 +57,6 @@ message ScalarTypesRepeated {
   repeated bytes bytes = 15;
 }
 
-message ScalarTypesMap { map<string, string> labels = 1; }
-
 message Nested {
   ScalarTypes nested_scalar = 1;
   repeated ScalarTypes nested_repeated_scalar = 2;
