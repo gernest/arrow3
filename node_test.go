@@ -226,6 +226,39 @@ func TestAppendMessage_scalar_oneof(t *testing.T) {
 	}
 	match(t, "testdata/one_of.json", string(data))
 }
+func TestAppendMessage_simpleOneOf(t *testing.T) {
+	msg := &samples.SimpleOneOf{}
+	b := build(msg.ProtoReflect())
+	b.build(memory.DefaultAllocator)
+	b.append(msg.ProtoReflect())
+	msg.Value = &samples.SimpleOneOf_K{
+		K: "key",
+	}
+	b.append(msg.ProtoReflect())
+	msg.Value = &samples.SimpleOneOf_V{
+		V: "value",
+	}
+	b.append(msg.ProtoReflect())
+	msg.Value = &samples.SimpleOneOf_One{
+		One: &samples.One{
+			Two: &samples.Two{
+				Three: &samples.Three{
+					Value: 10,
+				},
+			},
+		},
+	}
+	b.append(msg.ProtoReflect())
+
+	r := b.NewRecord()
+	data, err := r.MarshalJSON()
+	if err != nil {
+		t.Fatal(err)
+	}
+	match(t, "testdata/one_of_simple.txt", b.schema.String())
+	match(t, "testdata/one_of_simple.json", string(data))
+}
+
 func TestAppendMessage_otelKeyValue(t *testing.T) {
 	msg := &commonv1.KeyValue{}
 	b := build(msg.ProtoReflect())

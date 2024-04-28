@@ -103,3 +103,11 @@ message OneOfScala {
   }
   oneof nested { One one = 16; }
 }
+
+message SimpleOneOf {
+  oneof value {
+    string k = 1;
+    string v = 2;
+    One one = 3;
+  }
+}

@@ -24,7 +24,7 @@ const (
 
 var ErrMxDepth = errors.New("max depth reached, either the message is deeply nested or a circular dependency was introduced")
 
-type valueFn func(protoreflect.Value) error
+type valueFn func(protoreflect.Value, bool) error
 
 type encodeFn func(value protoreflect.Value, a arrow.Array, row int) protoreflect.Value
 
@@ -193,7 +193,7 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 			n.field.Nullable = true
 			n.setup = func(b array.Builder) valueFn {
 				a := b.(*array.BinaryBuilder)
-				return func(v protoreflect.Value) error {
+				return func(v protoreflect.Value, set bool) error {
 					if !v.IsValid() {
 						a.AppendNull()
 						return nil
@@ -230,7 +230,7 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 				n.setup = func(b array.Builder) valueFn {
 					ls := b.(*array.ListBuilder)
 					value := setup(ls.ValueBuilder())
-					return func(v protoreflect.Value) error {
+					return func(v protoreflect.Value, set bool) error {
 						if !v.IsValid() {
 							ls.AppendNull()
 							return nil
@@ -238,7 +238,7 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 						ls.Append(true)
 						list := v.List()
 						for i := 0; i < list.Len(); i++ {
-							err := value(list.Get(i))
+							err := value(list.Get(i), true)
 							if err != nil {
 								return err
 							}
@@ -266,7 +266,7 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 			for i := range n.children {
 				fs[i] = n.children[i].setup(a.FieldBuilder(i))
 			}
-			return func(v protoreflect.Value) error {
+			return func(v protoreflect.Value, set bool) error {
 				if !v.IsValid() {
 					a.AppendNull()
 					return nil
@@ -275,7 +275,7 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 				msg := v.Message()
 				fields := msg.Descriptor().Fields()
 				for i := 0; i < fields.Len(); i++ {
-					err := fs[i](msg.Get(fields.Get(i)))
+					err := fs[i](msg.Get(fields.Get(i)), msg.Has(fields.Get(i)))
 					if err != nil {
 						return err
 					}
@@ -323,7 +323,7 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 			n.setup = func(b array.Builder) valueFn {
 				ls := b.(*array.ListBuilder)
 				value := setup(ls.ValueBuilder())
-				return func(v protoreflect.Value) error {
+				return func(v protoreflect.Value, set bool) error {
 					if !v.IsValid() {
 						ls.AppendNull()
 						return nil
@@ -331,7 +331,7 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 					ls.Append(true)
 					list := v.List()
 					for i := 0; i < list.Len(); i++ {
-						err := value(list.Get(i))
+						err := value(list.Get(i), true)
 						if err != nil {
 							return err
 						}
@@ -339,6 +339,19 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 					return nil
 				}
 
+			}
+		}
+		if field.ContainingOneof() != nil {
+			setup := n.setup
+			n.setup = func(b array.Builder) valueFn {
+				do := setup(b)
+				return func(v protoreflect.Value, set bool) error {
+					if !set {
+						b.AppendNull()
+						return nil
+					}
+					return do(v, set)
+				}
 			}
 		}
 		return n
@@ -353,7 +366,7 @@ func (n *node) build(a array.Builder) {
 func (n *node) WriteMessage(msg protoreflect.Message) {
 	f := msg.Descriptor().Fields()
 	for i := 0; i < f.Len(); i++ {
-		n.children[i].write(msg.Get(f.Get(i)))
+		n.children[i].write(msg.Get(f.Get(i)), msg.Has(f.Get(i)))
 	}
 }
 
@@ -364,7 +377,7 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 
 		n.setup = func(b array.Builder) valueFn {
 			a := b.(*array.Int32Builder)
-			return func(v protoreflect.Value) error {
+			return func(v protoreflect.Value, set bool) error {
 				a.Append(int32(v.Enum()))
 				return nil
 			}
@@ -381,7 +394,7 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 
 		n.setup = func(b array.Builder) valueFn {
 			a := b.(*array.BooleanBuilder)
-			return func(v protoreflect.Value) error {
+			return func(v protoreflect.Value, set bool) error {
 				a.Append(v.Bool())
 				return nil
 			}
@@ -393,7 +406,7 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 		t = arrow.PrimitiveTypes.Int32
 		n.setup = func(b array.Builder) valueFn {
 			a := b.(*array.Int32Builder)
-			return func(v protoreflect.Value) error {
+			return func(v protoreflect.Value, set bool) error {
 				a.Append(int32(v.Int()))
 				return nil
 			}
@@ -404,7 +417,7 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 	case protoreflect.Uint32Kind, protoreflect.Fixed32Kind:
 		n.setup = func(b array.Builder) valueFn {
 			a := b.(*array.Uint32Builder)
-			return func(v protoreflect.Value) error {
+			return func(v protoreflect.Value, set bool) error {
 				a.Append(uint32(v.Uint()))
 				return nil
 			}
@@ -416,7 +429,7 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 	case protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Sfixed64Kind:
 		n.setup = func(b array.Builder) valueFn {
 			a := b.(*array.Int64Builder)
-			return func(v protoreflect.Value) error {
+			return func(v protoreflect.Value, set bool) error {
 				a.Append(v.Int())
 				return nil
 			}
@@ -428,7 +441,7 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 	case protoreflect.Uint64Kind, protoreflect.Fixed64Kind:
 		n.setup = func(b array.Builder) valueFn {
 			a := b.(*array.Uint64Builder)
-			return func(v protoreflect.Value) error {
+			return func(v protoreflect.Value, set bool) error {
 				a.Append(v.Uint())
 				return nil
 			}
@@ -440,7 +453,7 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 	case protoreflect.DoubleKind:
 		n.setup = func(b array.Builder) valueFn {
 			a := b.(*array.Float64Builder)
-			return func(v protoreflect.Value) error {
+			return func(v protoreflect.Value, set bool) error {
 				a.Append(v.Float())
 				return nil
 			}
@@ -452,7 +465,7 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 	case protoreflect.FloatKind:
 		n.setup = func(b array.Builder) valueFn {
 			a := b.(*array.Float32Builder)
-			return func(v protoreflect.Value) error {
+			return func(v protoreflect.Value, set bool) error {
 				a.Append(float32(v.Float()))
 				return nil
 			}
@@ -464,7 +477,7 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 	case protoreflect.StringKind:
 		n.setup = func(b array.Builder) valueFn {
 			a := b.(*array.StringBuilder)
-			return func(v protoreflect.Value) error {
+			return func(v protoreflect.Value, set bool) error {
 				a.Append(v.String())
 				return nil
 			}
@@ -482,7 +495,7 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 	case protoreflect.BytesKind:
 		n.setup = func(b array.Builder) valueFn {
 			a := b.(*array.BinaryBuilder)
-			return func(v protoreflect.Value) error {
+			return func(v protoreflect.Value, set bool) error {
 				if !v.IsValid() {
 					a.AppendNull()
 					return nil
@@ -508,7 +521,7 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 			n.setup = func(b array.Builder) valueFn {
 				ls := b.(*array.ListBuilder)
 				vb := setup(ls.ValueBuilder())
-				return func(v protoreflect.Value) error {
+				return func(v protoreflect.Value, set bool) error {
 					if !v.IsValid() {
 						ls.AppendNull()
 						return nil
@@ -516,7 +529,7 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 					ls.Append(true)
 					list := v.List()
 					for i := 0; i < list.Len(); i++ {
-						err := vb(list.Get(i))
+						err := vb(list.Get(i), true)
 						if err != nil {
 							return err
 						}
@@ -526,41 +539,29 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 			}
 			t = arrow.ListOf(t)
 		}
-		return
 	}
-	if field.IsMap() {
-		key := n.baseType(field.MapKey())
-		keySet := n.setup
-		value := n.baseType(field.MapValue())
-		if value == nil {
-			panic(fmt.Sprintf("%v is not supported as map value", field.MapValue().Kind()))
-		}
-		valueSet := n.setup
+	if t != nil && field.ContainingOneof() != nil {
+		// Handle oneof for base types
+		setup := n.setup
 		n.setup = func(b array.Builder) valueFn {
-			a := b.(*array.MapBuilder)
-			key := keySet(a.KeyBuilder())
-			value := valueSet(a.ItemBuilder())
-			return func(v protoreflect.Value) error {
-				if !v.IsValid() {
-					a.AppendNull()
+			do := setup(b)
+			return func(v protoreflect.Value, set bool) error {
+				if !set {
+					b.AppendNull()
 					return nil
 				}
-				a.Append(true)
-				m := v.Map()
-				m.Range(func(mk protoreflect.MapKey, v protoreflect.Value) bool {
-					key(protoreflect.Value(mk))
-					value(v)
-					return true
-				})
-				return nil
+				return do(v, set)
 			}
 		}
-		t = arrow.MapOf(key, value)
+
+	}
+	if field.IsMap() {
+		panic("MAP not supported")
 	}
 	return
 }
 
 func nullable(f protoreflect.FieldDescriptor) bool {
-	return f.HasOptionalKeyword() ||
+	return f.HasOptionalKeyword() || f.ContainingOneof() != nil ||
 		f.Kind() == protoreflect.BytesKind
 }

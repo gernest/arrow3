@@ -1167,6 +1167,101 @@ type OneOfScala_One struct {
 
 func (*OneOfScala_One) isOneOfScala_Nested() {}
 
+type SimpleOneOf struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	// Types that are assignable to Value:
+	//
+	//	*SimpleOneOf_K
+	//	*SimpleOneOf_V
+	//	*SimpleOneOf_One
+	Value isSimpleOneOf_Value `protobuf_oneof:"value"`
+}
+
+func (x *SimpleOneOf) Reset() {
+	*x = SimpleOneOf{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_samples_samples_proto_msgTypes[11]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SimpleOneOf) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SimpleOneOf) ProtoMessage() {}
+
+func (x *SimpleOneOf) ProtoReflect() protoreflect.Message {
+	mi := &file_samples_samples_proto_msgTypes[11]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SimpleOneOf.ProtoReflect.Descriptor instead.
+func (*SimpleOneOf) Descriptor() ([]byte, []int) {
+	return file_samples_samples_proto_rawDescGZIP(), []int{11}
+}
+
+func (m *SimpleOneOf) GetValue() isSimpleOneOf_Value {
+	if m != nil {
+		return m.Value
+	}
+	return nil
+}
+
+func (x *SimpleOneOf) GetK() string {
+	if x, ok := x.GetValue().(*SimpleOneOf_K); ok {
+		return x.K
+	}
+	return ""
+}
+
+func (x *SimpleOneOf) GetV() string {
+	if x, ok := x.GetValue().(*SimpleOneOf_V); ok {
+		return x.V
+	}
+	return ""
+}
+
+func (x *SimpleOneOf) GetOne() *One {
+	if x, ok := x.GetValue().(*SimpleOneOf_One); ok {
+		return x.One
+	}
+	return nil
+}
+
+type isSimpleOneOf_Value interface {
+	isSimpleOneOf_Value()
+}
+
+type SimpleOneOf_K struct {
+	K string `protobuf:"bytes,1,opt,name=k,proto3,oneof"`
+}
+
+type SimpleOneOf_V struct {
+	V string `protobuf:"bytes,2,opt,name=v,proto3,oneof"`
+}
+
+type SimpleOneOf_One struct {
+	One *One `protobuf:"bytes,3,opt,name=one,proto3,oneof"`
+}
+
+func (*SimpleOneOf_K) isSimpleOneOf_Value() {}
+
+func (*SimpleOneOf_V) isSimpleOneOf_Value() {}
+
+func (*SimpleOneOf_One) isSimpleOneOf_Value() {}
+
 var File_samples_samples_proto protoreflect.FileDescriptor
 
 var file_samples_samples_proto_rawDesc = []byte{
@@ -1332,11 +1427,16 @@ var file_samples_samples_proto_rawDesc = []byte{
 	0x00, 0x52, 0x05, 0x62, 0x79, 0x74, 0x65, 0x73, 0x12, 0x18, 0x0a, 0x03, 0x6f, 0x6e, 0x65, 0x18,
 	0x10, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x04, 0x2e, 0x4f, 0x6e, 0x65, 0x48, 0x01, 0x52, 0x03, 0x6f,
 	0x6e, 0x65, 0x42, 0x07, 0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x42, 0x08, 0x0a, 0x06, 0x6e,
-	0x65, 0x73, 0x74, 0x65, 0x64, 0x42, 0x3a, 0x42, 0x0c, 0x53, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x73,
-	0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x28, 0x67, 0x69, 0x74, 0x68, 0x75, 0x62, 0x2e,
-	0x63, 0x6f, 0x6d, 0x2f, 0x67, 0x65, 0x72, 0x6e, 0x65, 0x73, 0x74, 0x2f, 0x61, 0x72, 0x72, 0x6f,
-	0x77, 0x33, 0x2f, 0x67, 0x65, 0x6e, 0x2f, 0x67, 0x6f, 0x2f, 0x73, 0x61, 0x6d, 0x70, 0x6c, 0x65,
-	0x73, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x65, 0x73, 0x74, 0x65, 0x64, 0x22, 0x50, 0x0a, 0x0b, 0x53, 0x69, 0x6d, 0x70, 0x6c, 0x65, 0x4f,
+	0x6e, 0x65, 0x4f, 0x66, 0x12, 0x0e, 0x0a, 0x01, 0x6b, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x48,
+	0x00, 0x52, 0x01, 0x6b, 0x12, 0x0e, 0x0a, 0x01, 0x76, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x48,
+	0x00, 0x52, 0x01, 0x76, 0x12, 0x18, 0x0a, 0x03, 0x6f, 0x6e, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28,
+	0x0b, 0x32, 0x04, 0x2e, 0x4f, 0x6e, 0x65, 0x48, 0x00, 0x52, 0x03, 0x6f, 0x6e, 0x65, 0x42, 0x07,
+	0x0a, 0x05, 0x76, 0x61, 0x6c, 0x75, 0x65, 0x42, 0x3a, 0x42, 0x0c, 0x53, 0x61, 0x6d, 0x70, 0x6c,
+	0x65, 0x73, 0x50, 0x72, 0x6f, 0x74, 0x6f, 0x50, 0x01, 0x5a, 0x28, 0x67, 0x69, 0x74, 0x68, 0x75,
+	0x62, 0x2e, 0x63, 0x6f, 0x6d, 0x2f, 0x67, 0x65, 0x72, 0x6e, 0x65, 0x73, 0x74, 0x2f, 0x61, 0x72,
+	0x72, 0x6f, 0x77, 0x33, 0x2f, 0x67, 0x65, 0x6e, 0x2f, 0x67, 0x6f, 0x2f, 0x73, 0x61, 0x6d, 0x70,
+	0x6c, 0x65, 0x73, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -1351,7 +1451,7 @@ func file_samples_samples_proto_rawDescGZIP() []byte {
 	return file_samples_samples_proto_rawDescData
 }
 
-var file_samples_samples_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
+var file_samples_samples_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
 var file_samples_samples_proto_goTypes = []interface{}{
 	(*ScalarTypes)(nil),           // 0: ScalarTypes
 	(*ScalarTypesOptional)(nil),   // 1: ScalarTypesOptional
@@ -1364,12 +1464,13 @@ var file_samples_samples_proto_goTypes = []interface{}{
 	(*Cyclic)(nil),                // 8: Cyclic
 	(*Known)(nil),                 // 9: Known
 	(*OneOfScala)(nil),            // 10: OneOfScala
-	nil,                           // 11: ScalarTypesMap.LabelsEntry
-	(*timestamppb.Timestamp)(nil), // 12: google.protobuf.Timestamp
-	(*durationpb.Duration)(nil),   // 13: google.protobuf.Duration
+	(*SimpleOneOf)(nil),           // 11: SimpleOneOf
+	nil,                           // 12: ScalarTypesMap.LabelsEntry
+	(*timestamppb.Timestamp)(nil), // 13: google.protobuf.Timestamp
+	(*durationpb.Duration)(nil),   // 14: google.protobuf.Duration
 }
 var file_samples_samples_proto_depIdxs = []int32{
-	11, // 0: ScalarTypesMap.labels:type_name -> ScalarTypesMap.LabelsEntry
+	12, // 0: ScalarTypesMap.labels:type_name -> ScalarTypesMap.LabelsEntry
 	0,  // 1: Nested.nested_scalar:type_name -> ScalarTypes
 	0,  // 2: Nested.nested_repeated_scalar:type_name -> ScalarTypes
 	5,  // 3: Nested.deep:type_name -> One
@@ -1377,16 +1478,17 @@ var file_samples_samples_proto_depIdxs = []int32{
 	7,  // 5: Two.three:type_name -> Three
 	5,  // 6: Cyclic.one:type_name -> One
 	8,  // 7: Cyclic.cylcic:type_name -> Cyclic
-	12, // 8: Known.ts:type_name -> google.protobuf.Timestamp
-	13, // 9: Known.duration:type_name -> google.protobuf.Duration
-	12, // 10: Known.ts_rep:type_name -> google.protobuf.Timestamp
-	13, // 11: Known.duration_rep:type_name -> google.protobuf.Duration
+	13, // 8: Known.ts:type_name -> google.protobuf.Timestamp
+	14, // 9: Known.duration:type_name -> google.protobuf.Duration
+	13, // 10: Known.ts_rep:type_name -> google.protobuf.Timestamp
+	14, // 11: Known.duration_rep:type_name -> google.protobuf.Duration
 	5,  // 12: OneOfScala.one:type_name -> One
-	13, // [13:13] is the sub-list for method output_type
-	13, // [13:13] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	5,  // 13: SimpleOneOf.one:type_name -> One
+	14, // [14:14] is the sub-list for method output_type
+	14, // [14:14] is the sub-list for method input_type
+	14, // [14:14] is the sub-list for extension type_name
+	14, // [14:14] is the sub-list for extension extendee
+	0,  // [0:14] is the sub-list for field type_name
 }
 
 func init() { file_samples_samples_proto_init() }
@@ -1527,6 +1629,18 @@ func file_samples_samples_proto_init() {
 				return nil
 			}
 		}
+		file_samples_samples_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SimpleOneOf); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	file_samples_samples_proto_msgTypes[1].OneofWrappers = []interface{}{}
 	file_samples_samples_proto_msgTypes[10].OneofWrappers = []interface{}{
@@ -1547,13 +1661,18 @@ func file_samples_samples_proto_init() {
 		(*OneOfScala_Bytes)(nil),
 		(*OneOfScala_One)(nil),
 	}
+	file_samples_samples_proto_msgTypes[11].OneofWrappers = []interface{}{
+		(*SimpleOneOf_K)(nil),
+		(*SimpleOneOf_V)(nil),
+		(*SimpleOneOf_One)(nil),
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_samples_samples_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   12,
+			NumMessages:   13,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
