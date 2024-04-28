@@ -7,7 +7,9 @@ import (
 	"testing"
 
 	"github.com/apache/arrow/go/v17/arrow/memory"
+	commonv1 "go.opentelemetry.io/proto/otlp/common/v1"
 	metricsv1 "go.opentelemetry.io/proto/otlp/metrics/v1"
+	"google.golang.org/protobuf/encoding/protojson"
 )
 
 func TestRead(t *testing.T) {
@@ -23,7 +25,15 @@ func TestRead(t *testing.T) {
 						DataPoints: []*metricsv1.NumberDataPoint{
 							{TimeUnixNano: 16, Value: &metricsv1.NumberDataPoint_AsInt{
 								AsInt: 18,
-							}},
+							},
+								Attributes: []*commonv1.KeyValue{
+									{Key: "key", Value: &commonv1.AnyValue{
+										Value: &commonv1.AnyValue_StringValue{
+											StringValue: "value",
+										},
+									}},
+								},
+							},
 						},
 					},
 				}},
@@ -37,7 +47,7 @@ func TestRead(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	matchBytes(t, "testdata/otel_metrics_data.parquet", o.Bytes())
+	matchBytes(t, "testdata/otel_metrics_data.parquet", o.Bytes(), struct{}{})
 
 	f, err := os.Open("testdata/otel_metrics_data.parquet")
 	if err != nil {
@@ -52,5 +62,14 @@ func TestRead(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	match(t, "testdata/otel_metrics_data_parquet_read.json", string(data))
+	match(t, "testdata/otel_metrics_data_parquet_read.json", string(data), struct{}{})
+
+	rd := unmarshal[*metricsv1.MetricsData](b.root, r, []int{1})
+
+	data, err = protojson.Marshal(rd[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+	match(t, "testdata/otel_metrics_data_parquet_read_decoded.json", string(data), struct{}{})
+	t.Error()
 }

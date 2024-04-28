@@ -26,7 +26,7 @@ var ErrMxDepth = errors.New("max depth reached, either the message is deeply nes
 
 type valueFn func(protoreflect.Value) error
 
-type encodeFn func(msg protoreflect.Message, a arrow.Array, i int) protoreflect.Value
+type encodeFn func(value protoreflect.Value, a arrow.Array, row int) protoreflect.Value
 
 type node struct {
 	parent   *node
@@ -49,7 +49,7 @@ func unmarshal[T proto.Message](n *node, r arrow.Record, rows []int) []T {
 	o := make([]T, len(rows))
 	var a T
 	ref := a.ProtoReflect()
-	for _, row := range rows {
+	for idx, row := range rows {
 		msg := ref.New()
 		for i := 0; i < int(r.NumCols()); i++ {
 			name := r.ColumnName(i)
@@ -60,21 +60,32 @@ func unmarshal[T proto.Message](n *node, r arrow.Record, rows []int) []T {
 			fs := nx.desc.(protoreflect.FieldDescriptor)
 			switch {
 			case fs.IsList():
-				nx.encode(msg, r.Column(i), row)
+				ls := r.Column(i).(*array.List)
+				start, end := ls.ValueOffsets(row)
+				val := ls.ListValues()
+				if start != end {
+					lv := msg.NewField(fs)
+					list := lv.List()
+					for k := start; k < end; k++ {
+						list.Append(
+							nx.encode(
+								list.NewElement(),
+								val,
+								int(k),
+							),
+						)
+					}
+					msg.Set(fs, lv)
+				}
 			case fs.IsMap():
 				panic("MAP not supported")
 			default:
-				if fs.Message() != nil {
-					nx.encode(
-						msg.Mutable(fs).Message(),
-						r.Column(i),
-						row,
-					)
-				} else {
-					msg.Set(fs, nx.encode(nil, r.Column(i), row))
-				}
+				msg.Set(fs,
+					nx.encode(msg.NewField(fs), r.Column(i), row),
+				)
 			}
 		}
+		o[idx] = msg.Interface().(T)
 	}
 	return o
 
@@ -196,19 +207,20 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 					return nil
 				}
 			}
-			n.encode = func(msg protoreflect.Message, a arrow.Array, i int) protoreflect.Value {
-				if a.IsNull(i) {
+			n.encode = func(value protoreflect.Value, a arrow.Array, row int) protoreflect.Value {
+				if a.IsNull(row) {
 					return protoreflect.Value{}
 				}
+				msg := value.Message()
 				var v []byte
 				if a.DataType().ID() == arrow.DICTIONARY {
 					d := a.(*array.Dictionary)
-					v = d.Dictionary().(*array.Binary).Value(d.GetValueIndex(i))
+					v = d.Dictionary().(*array.Binary).Value(d.GetValueIndex(row))
 				} else {
-					v = a.(*array.Binary).Value(i)
+					v = a.(*array.Binary).Value(row)
 				}
 				proto.Unmarshal(v, msg.Interface())
-				return protoreflect.Value{}
+				return value
 			}
 		}
 		if n.field.Type != nil {
@@ -233,20 +245,6 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 						}
 						return nil
 					}
-				}
-				encode := n.encode
-				n.encode = func(msg protoreflect.Message, a arrow.Array, i int) protoreflect.Value {
-					ls := a.(*array.List)
-					start, end := ls.ValueOffsets(i)
-					if start == end {
-						return protoreflect.Value{}
-					}
-					v := ls.ListValues()
-					list := msg.Mutable(field).List()
-					for j := start; j < end; j++ {
-						encode(list.NewElement().Message(), v, int(j))
-					}
-					return protoreflect.Value{}
 				}
 			}
 			return n
@@ -285,7 +283,8 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 				return nil
 			}
 		}
-		n.encode = func(msg protoreflect.Message, a arrow.Array, i int) protoreflect.Value {
+		n.encode = func(value protoreflect.Value, a arrow.Array, row int) protoreflect.Value {
+			msg := value.Message()
 			s := a.(*array.Struct)
 			typ := a.DataType().(*arrow.StructType)
 			for j := 0; j < s.NumField(); j++ {
@@ -297,23 +296,26 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 				fs := nx.desc.(protoreflect.FieldDescriptor)
 				switch {
 				case fs.IsList():
-					nx.encode(msg, s.Field(j), i)
+					ls := s.Field(j).(*array.List)
+					start, end := ls.ValueOffsets(row)
+					if start != end {
+						lv := msg.Mutable(fs)
+						list := lv.List()
+						va := ls.ListValues()
+						for k := start; k < end; k++ {
+							list.Append(
+								nx.encode(list.NewElement(), va, int(k)),
+							)
+						}
+						msg.Set(fs, lv)
+					}
 				case fs.IsMap():
 					panic("MAP not supported")
 				default:
-					if fs.Message() != nil {
-						nx.encode(
-							msg.Mutable(fs).Message(),
-							s.Field(j),
-							i,
-						)
-					} else {
-						msg.Set(fs, nx.encode(nil, s.Field(j), i))
-					}
+					msg.Set(fs, nx.encode(msg.NewField(fs), s.Field(j), row))
 				}
-
 			}
-			return protoreflect.Value{}
+			return value
 		}
 		if field.IsList() {
 			n.field.Type = arrow.ListOf(n.field.Type)
@@ -337,22 +339,6 @@ func createNode(parent *node, field protoreflect.FieldDescriptor, depth int) *no
 					return nil
 				}
 
-			}
-			encode := n.encode
-			n.encode = func(msg protoreflect.Message, a arrow.Array, i int) protoreflect.Value {
-				ls := a.(*array.List)
-				start, end := ls.ValueOffsets(i)
-				if start == end {
-					return protoreflect.Value{}
-				}
-				v := ls.ListValues()
-				list := msg.Mutable(field).List()
-				for j := start; j < end; j++ {
-					encode(list.NewElement().Message(),
-						v, i,
-					)
-				}
-				return protoreflect.Value{}
 			}
 		}
 		return n
@@ -383,7 +369,7 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 				return nil
 			}
 		}
-		n.encode = func(msg protoreflect.Message, a arrow.Array, i int) protoreflect.Value {
+		n.encode = func(value protoreflect.Value, a arrow.Array, i int) protoreflect.Value {
 			return protoreflect.ValueOfEnum(
 				protoreflect.EnumNumber(
 					a.(*array.Int32).Value(i),
@@ -400,7 +386,7 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 				return nil
 			}
 		}
-		n.encode = func(msg protoreflect.Message, a arrow.Array, i int) protoreflect.Value {
+		n.encode = func(value protoreflect.Value, a arrow.Array, i int) protoreflect.Value {
 			return protoreflect.ValueOfBool(a.(*array.Boolean).Value(i))
 		}
 	case protoreflect.Int32Kind, protoreflect.Sint32Kind, protoreflect.Sfixed32Kind:
@@ -412,7 +398,7 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 				return nil
 			}
 		}
-		n.encode = func(msg protoreflect.Message, a arrow.Array, i int) protoreflect.Value {
+		n.encode = func(value protoreflect.Value, a arrow.Array, i int) protoreflect.Value {
 			return protoreflect.ValueOfInt32(a.(*array.Int32).Value(i))
 		}
 	case protoreflect.Uint32Kind, protoreflect.Fixed32Kind:
@@ -424,7 +410,7 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 			}
 		}
 		t = arrow.PrimitiveTypes.Uint32
-		n.encode = func(msg protoreflect.Message, a arrow.Array, i int) protoreflect.Value {
+		n.encode = func(value protoreflect.Value, a arrow.Array, i int) protoreflect.Value {
 			return protoreflect.ValueOfUint32(a.(*array.Uint32).Value(i))
 		}
 	case protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Sfixed64Kind:
@@ -436,7 +422,7 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 			}
 		}
 		t = arrow.PrimitiveTypes.Int64
-		n.encode = func(msg protoreflect.Message, a arrow.Array, i int) protoreflect.Value {
+		n.encode = func(value protoreflect.Value, a arrow.Array, i int) protoreflect.Value {
 			return protoreflect.ValueOfInt64(a.(*array.Int64).Value(i))
 		}
 	case protoreflect.Uint64Kind, protoreflect.Fixed64Kind:
@@ -448,7 +434,7 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 			}
 		}
 		t = arrow.PrimitiveTypes.Uint64
-		n.encode = func(msg protoreflect.Message, a arrow.Array, i int) protoreflect.Value {
+		n.encode = func(value protoreflect.Value, a arrow.Array, i int) protoreflect.Value {
 			return protoreflect.ValueOfUint64(a.(*array.Uint64).Value(i))
 		}
 	case protoreflect.DoubleKind:
@@ -460,7 +446,7 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 			}
 		}
 		t = arrow.PrimitiveTypes.Float64
-		n.encode = func(msg protoreflect.Message, a arrow.Array, i int) protoreflect.Value {
+		n.encode = func(value protoreflect.Value, a arrow.Array, i int) protoreflect.Value {
 			return protoreflect.ValueOfFloat64(a.(*array.Float64).Value(i))
 		}
 	case protoreflect.FloatKind:
@@ -472,7 +458,7 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 			}
 		}
 		t = arrow.PrimitiveTypes.Float32
-		n.encode = func(msg protoreflect.Message, a arrow.Array, i int) protoreflect.Value {
+		n.encode = func(value protoreflect.Value, a arrow.Array, i int) protoreflect.Value {
 			return protoreflect.ValueOfFloat32(a.(*array.Float32).Value(i))
 		}
 	case protoreflect.StringKind:
@@ -484,14 +470,14 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 			}
 		}
 		t = arrow.BinaryTypes.String
-		n.encode = func(msg protoreflect.Message, a arrow.Array, i int) protoreflect.Value {
+		n.encode = func(value protoreflect.Value, a arrow.Array, i int) protoreflect.Value {
 			if a.DataType().ID() == arrow.DICTIONARY {
 				d := a.(*array.Dictionary)
 				return protoreflect.ValueOfString(
 					d.Dictionary().(*array.String).Value(d.GetValueIndex(i)),
 				)
 			}
-			return protoreflect.ValueOfBool(a.(*array.Boolean).Value(i))
+			return protoreflect.ValueOfString(a.(*array.String).Value(i))
 		}
 	case protoreflect.BytesKind:
 		n.setup = func(b array.Builder) valueFn {
@@ -506,7 +492,7 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 			}
 		}
 		t = arrow.BinaryTypes.Binary
-		n.encode = func(msg protoreflect.Message, a arrow.Array, i int) protoreflect.Value {
+		n.encode = func(value protoreflect.Value, a arrow.Array, i int) protoreflect.Value {
 			if a.DataType().ID() == arrow.DICTIONARY {
 				d := a.(*array.Dictionary)
 				return protoreflect.ValueOfBytes(
@@ -539,24 +525,6 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 				}
 			}
 			t = arrow.ListOf(t)
-			encode := n.encode
-			n.encode = func(msg protoreflect.Message, a arrow.Array, i int) protoreflect.Value {
-				ls := a.(*array.List)
-				start, end := ls.ValueOffsets(i)
-				if start == end {
-					return protoreflect.Value{}
-				}
-				v := ls.ListValues()
-				list := msg.Mutable(field).List()
-				for j := start; i < int(end); i++ {
-					list.Append(
-						// we are intentionally passing nil message to make sure no base types
-						// mess with msg.
-						encode(nil, v, int(j)),
-					)
-				}
-				return protoreflect.Value{}
-			}
 		}
 		return
 	}
@@ -588,9 +556,6 @@ func (n *node) baseType(field protoreflect.FieldDescriptor) (t arrow.DataType) {
 			}
 		}
 		t = arrow.MapOf(key, value)
-		n.encode = func(msg protoreflect.Message, a arrow.Array, i int) protoreflect.Value {
-			panic("MAP is not supported for decoding")
-		}
 	}
 	return
 }
