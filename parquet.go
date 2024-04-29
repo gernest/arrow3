@@ -66,15 +66,15 @@ func (msg *message) WriteParquetRecords(w io.Writer, records ...arrow.Record) er
 	for i := 0; i < int(records[0].NumCols()); i++ {
 		for j := range records {
 			chunk[j] = records[j].Column(i)
-			a := arrow.NewChunked(chunk[0].DataType(), chunk)
-			err := f.WriteColumnChunked(a, 0, int64(a.Len()))
-			if err != nil {
-				a.Release()
-				f.Close()
-				return err
-			}
-			a.Release()
 		}
+		a := arrow.NewChunked(chunk[0].DataType(), chunk)
+		err := f.WriteColumnChunked(a, 0, int64(a.Len()))
+		if err != nil {
+			a.Release()
+			f.Close()
+			return err
+		}
+		a.Release()
 	}
 	return f.Close()
 }

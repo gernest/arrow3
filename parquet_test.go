@@ -72,3 +72,41 @@ func TestRead(t *testing.T) {
 	}
 	match(t, "testdata/otel_metrics_data_parquet_read_decoded.json", string(data))
 }
+
+func TestWriteMultiple(t *testing.T) {
+	msg := &metricsv1.MetricsData{}
+	b := build(msg.ProtoReflect())
+	b.build(memory.DefaultAllocator)
+	b.append(msg.ProtoReflect())
+	msg.ResourceMetrics = []*metricsv1.ResourceMetrics{
+		{ScopeMetrics: []*metricsv1.ScopeMetrics{
+			{Metrics: []*metricsv1.Metric{
+				{Name: "check", Data: &metricsv1.Metric_Gauge{
+					Gauge: &metricsv1.Gauge{
+						DataPoints: []*metricsv1.NumberDataPoint{
+							{TimeUnixNano: 16, Value: &metricsv1.NumberDataPoint_AsInt{
+								AsInt: 18,
+							},
+								Attributes: []*commonv1.KeyValue{
+									{Key: "key", Value: &commonv1.AnyValue{
+										Value: &commonv1.AnyValue_StringValue{
+											StringValue: "value",
+										},
+									}},
+								},
+							},
+						},
+					},
+				}},
+			}},
+		}},
+	}
+	b.append(msg.ProtoReflect())
+
+	var o bytes.Buffer
+	r := b.NewRecord()
+	err := b.WriteParquetRecords(&o, r, r)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
